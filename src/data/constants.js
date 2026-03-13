@@ -1,4 +1,4 @@
-export const PASSWORD = "ACQUIREMORE2025";
+export const PASSWORD = "PAYMORE2025";
 
 // =================== CORE GAME VALUES ===================
 export const STARTING_CASH = 1_000_000;
