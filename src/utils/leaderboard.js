@@ -67,11 +67,11 @@ export async function recordGamePlayed() {
 
 function getLocal() {
   try {
-    const d = localStorage.getItem("paymore-leaderboard");
+    const d = localStorage.getItem("acquiremore-leaderboard");
     return d ? JSON.parse(d) : { entries: [], totalGames: 0, totalWins: 0 };
   } catch { return { entries: [], totalGames: 0, totalWins: 0 }; }
 }
 
 function setLocal(data) {
-  try { localStorage.setItem("paymore-leaderboard", JSON.stringify(data)); } catch {}
+  try { localStorage.setItem("acquiremore-leaderboard", JSON.stringify(data)); } catch {}
 }

@@ -74,11 +74,11 @@ export default function EndScreen({ month, totalStores, ownedStores, netCashFlow
           : "FRANCHISE TOURIST";
 
   const subtitleText = totalStores >= 30
-    ? `30+ stores in 36 months. You're basically a retail empire. Time to find out what it's worth.`
+    ? `30+ stores in 10 months. You're basically a retail empire. Time to find out what it's worth.`
     : totalStores >= 20
       ? `${totalStores} stores. Not bad. Let's see what the market thinks.`
       : totalStores >= 10
-        ? `${totalStores} stores in 36 months. Room to grow, but you survived. Valuation time.`
+        ? `${totalStores} stores in 10 months. Room to grow, but you survived. Valuation time.`
         : `${totalStores} stores. The board is unimpressed, but at least you're not bankrupt. Let's spin the wheel.`;
 
   return (

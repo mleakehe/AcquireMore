@@ -5,7 +5,6 @@ import {
   DAN_PASSED, DAN_WILD_EVENT_GOOD, DAN_WILD_EVENT_BAD,
   DAN_RANDOM_EVENT,
   DAN_CLOSURE, DAN_DESPERATE, DAN_NO_GAMBLE, DAN_GAMBLING_RESISTANCE, DAN_SIGNOFFS,
-  DAN_DOWNTURN_START, DAN_DOWNTURN_END,
   MAX_MONTHS,
 } from "../data/constants";
 
@@ -23,7 +22,7 @@ function fmtPlain(n) {
 }
 
 function generateLetter(report) {
-  const { month, netCashFlow, actions, closures, downturnEvent, postCloseEvent, dealQualityMsg, randomEvent, activeEvents, desperateMeasureType } = report;
+  const { month, netCashFlow, actions, closures, postCloseEvent, dealQualityMsg, randomEvent, activeEvents, desperateMeasureType } = report;
 
   // Determine performance bucket (drives title/opening tone)
   let bucket;
@@ -133,18 +132,10 @@ function generateLetter(report) {
     }
   }
 
-  // Downturn P.S.
-  let ps = null;
-  if (downturnEvent === "start") {
-    ps = pick(DAN_DOWNTURN_START);
-  } else if (downturnEvent === "end") {
-    ps = pick(DAN_DOWNTURN_END);
-  }
-
   // Sign-off — ALWAYS unreasonably optimistic
   const signoff = pick(DAN_SIGNOFFS);
 
-  return { title, opening, bullets, signoff, ps };
+  return { title, opening, bullets, signoff };
 }
 
 function getButtonText(netCashFlow) {
@@ -179,11 +170,6 @@ export default function MonthlyReport({ report, onClose }) {
             <p key={i} className="dan-bullet">{b}</p>
           ))}
         </div>
-
-        {/* P.S. (downturn) */}
-        {letter.ps && (
-          <p className="dan-ps">{letter.ps}</p>
-        )}
 
         <div className="report-divider" />
 

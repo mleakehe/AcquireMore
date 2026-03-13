@@ -87,9 +87,21 @@ export default function ValuationWheel({ netCashFlow, debt, onComplete }) {
     const idx = Math.floor(Math.random() * SEGMENT_COUNT);
     const multiple = VALUATION_MULTIPLES[idx];
 
+    // The pointer is at the top (270° in canvas coords = 12 o'clock).
+    // Segment i center is at: i * SEGMENT_ANGLE + SEGMENT_ANGLE/2 + rotation.
+    // We want that to equal 270°, so:
+    // finalRot = 270 - (idx * SEGMENT_ANGLE + SEGMENT_ANGLE/2)
+    // Ensure positive final rotation with enough full spins
     const targetSegCenter = idx * SEGMENT_ANGLE + SEGMENT_ANGLE / 2;
-    const baseRot = 270 - targetSegCenter;
-    const totalRot = 360 * (8 + Math.random() * 4) + baseRot;
+    let finalRot = (270 - targetSegCenter) % 360;
+    if (finalRot < 0) finalRot += 360;
+    // Add random jitter within the segment to not always land dead center
+    const jitter = (Math.random() - 0.5) * SEGMENT_ANGLE * 0.6;
+    finalRot = (finalRot + jitter + 360) % 360;
+    const fullSpins = 360 * (8 + Math.random() * 4);
+    const totalRot = fullSpins + finalRot - (rotation % 360);
+    // Ensure totalRot is always positive (spinning forward)
+    const adjustedTotalRot = totalRot > 0 ? totalRot : totalRot + 360;
 
     let startTime = null;
     const duration = 5000;
@@ -101,7 +113,7 @@ export default function ValuationWheel({ netCashFlow, debt, onComplete }) {
       const elapsed = time - startTime;
       const t = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - t, 3);
-      const currentRot = startRot + totalRot * eased;
+      const currentRot = startRot + adjustedTotalRot * eased;
       setRotation(currentRot % 360);
 
       const segIdx = Math.floor((currentRot % 360) / SEGMENT_ANGLE);

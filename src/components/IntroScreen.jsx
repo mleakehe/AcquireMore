@@ -10,7 +10,7 @@ export default function IntroScreen({ onStart }) {
       <div className="scanline-overlay" />
       <div className="intro-box">
         <h1 className="intro-title">
-          <span className="pay">PAY</span>
+          <span className="pay">ACQUIRE</span>
           <span className="more">MORE</span>
         </h1>
         <p className="intro-tagline">THE ACQUISITION GAME</p>
@@ -23,7 +23,7 @@ export default function IntroScreen({ onStart }) {
               <p>
                 You have <span style={{ color: "#00ff88" }}>$1,000,000</span> in cash and zero stores.
                 Corporate overhead eats <span style={{ color: "#ff3344" }}>$15,000 + $2,000/store</span> every month.
-                You have <span style={{ color: "#00c8ff" }}>36 months</span> to build an empire.
+                You have <span style={{ color: "#00c8ff" }}>10 months</span> to build an empire.
               </p>
               <p>
                 Each month you'll see <span style={{ color: "#ff6b00" }}>6 deal cards</span> —
@@ -48,7 +48,7 @@ export default function IntroScreen({ onStart }) {
               <p className="intro-tip">
                 Acquisitions: stable revenue, but expensive (10-60% down, rest is debt at 1.5%/mo).
                 Builds: cheaper, no debt, but revenue is less predictable.
-                When you're desperate, you can beg Dan for cash, gamble at blackjack, or buy lottery tickets.
+                When you're desperate, you can beg Dan for cash, gamble at blackjack, buy lottery tickets, bet your buddy at golf, or invest in a meme coin.
               </p>
             </div>
             <button className="intro-btn" onClick={() => setReady(true)}>

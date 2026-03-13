@@ -1,4 +1,4 @@
-export const PASSWORD = "PAYMORE2025";
+export const PASSWORD = "ACQUIREMORE2025";
 
 // =================== CORE GAME VALUES ===================
 export const STARTING_CASH = 1_000_000;
@@ -6,7 +6,7 @@ export const MAX_MONTHS = 10;
 export const CORPORATE_OVERHEAD_BASE = 15_000;
 export const CORPORATE_OVERHEAD_PER_STORE = 2_000;
 
-// =================== FINANCIAL MODEL (from real PayMore proforma) ===================
+// =================== FINANCIAL MODEL (from real AcquireMore proforma) ===================
 // Contribution Margin = what's left after ALL variable costs (COGS, royalties, variable labor, etc.)
 // Profit = Revenue × CM - Fixed Costs - Lease
 export const BASE_FIXED_COSTS = 20_000; // fixed operating costs per store per month
@@ -88,8 +88,7 @@ export const BUILD_COST_MIN = 150_000;
 export const BUILD_COST_MAX = 300_000;
 
 // =================== DEBT ===================
-export const DEBT_INTEREST_RATE = 0.015;         // 1.5%/mo normal
-export const DEBT_INTEREST_RATE_DOWNTURN = 0.025; // 2.5%/mo downturn
+export const DEBT_INTEREST_RATE = 0.015;         // 1.5%/mo
 
 // =================== STORE CLOSURES ===================
 export const CLOSURE_STREAK = 3; // 3 consecutive losing months
@@ -99,14 +98,6 @@ export const CLOSURE_MESSAGES = [
   "🔒 {city} IS DONE. Three losing months. $200k closure fee. That hurts.",
   "🔒 CLOSURE: {city}. Three months of red ink was the limit. $200k termination fee.",
 ];
-
-// =================== MARKET DOWNTURN ===================
-export const DOWNTURN_EARLIEST = 4;
-export const DOWNTURN_LATEST = 7;
-export const DOWNTURN_DURATION_MIN = 2;
-export const DOWNTURN_DURATION_MAX = 3;
-export const DOWNTURN_REVENUE_MULTIPLIER = 0.75;  // revenue -25%
-export const DOWNTURN_PRICE_MULTIPLIER = 0.65;    // acquisition prices -35%
 
 // =================== DESPERATE MEASURES ===================
 export const DAN_WHEEL_SEGMENTS = [
@@ -123,10 +114,22 @@ export const BLACKJACK_WIN_CHANCE = 0.45;
 export const BLACKJACK_STAKES = [0.25, 0.50, 1.00]; // % of cash
 
 export const LOTTERY_COST = 50_000;
-export const LOTTERY_WIN_CHANCE = 0.02;
+export const LOTTERY_WIN_CHANCE = 0.10;
 export const LOTTERY_WIN_AMOUNT = 2_000_000;
 
 export const LIQUIDATE_RECOVERY_RATE = 0.50; // get 50% of purchase price back
+
+// Golf bet — bet a buddy you can beat him. Win = double, lose = lose it.
+export const GOLF_BET_COST = 100_000;
+export const GOLF_WIN_CHANCE = 0.40;
+export const GOLF_WIN_AMOUNT = 200_000; // net +100k (get your 100k back + 100k winnings)
+
+// Meme coin — invest in a friend's meme coin. Could 10x or go to zero.
+export const MEMECOIN_COST = 75_000;
+export const MEMECOIN_MOON_CHANCE = 0.08;
+export const MEMECOIN_MOON_AMOUNT = 750_000; // 10x
+export const MEMECOIN_PARTIAL_CHANCE = 0.25; // 25% chance to 2x
+export const MEMECOIN_PARTIAL_AMOUNT = 150_000; // 2x
 
 // =================== STORE INITIATIVES (click losing stores to gamble on fixing them) ===================
 export const INITIATIVE_COST = 30_000;
@@ -164,8 +167,8 @@ export const POSITIVE_EVENTS = [
   { text: "A local influencer called your store 'lowkey fire.' Sales through the roof.", cashFlow: 20000, duration: 2 },
   { text: "New gaming console dropped. Your stores are basically a mosh pit right now.", cashFlow: 25000, duration: 1 },
   { text: "A competitor went under. Moment of silence. Now take their customers.", cashFlow: 14000, duration: 3 },
-  { text: "PayMore got mentioned in a Reddit thread. Somehow positive.", cashFlow: 12000, duration: 2 },
-  { text: "A celebrity was spotted carrying a PayMore bag. Nobody knows why. Sales up.", cashFlow: 18000, duration: 2 },
+  { text: "AcquireMore got mentioned in a Reddit thread. Somehow positive.", cashFlow: 12000, duration: 2 },
+  { text: "A celebrity was spotted carrying a AcquireMore bag. Nobody knows why. Sales up.", cashFlow: 18000, duration: 2 },
   { text: "Back-to-school season hit different this year. Cha-ching.", cashFlow: 15000, duration: 2 },
 ];
 
@@ -186,7 +189,7 @@ export const CARD_DEAL_PHRASES = [
   "Month {month}. Six deals. Pick one. Or don't.",
   "Six opportunities. One choice. Unlimited regret potential.",
   "The market has opinions. Here are six of them.",
-  "Month {month} of 36. Read the signals. Choose wisely.",
+  "Month {month} of 10. Read the signals. Choose wisely.",
   "Six cards. Somewhere in there is a winner. Good luck.",
   "Your broker sent six options. He's not sure about any of them.",
   "Another month, another six chances to lose money. Or make it.",
@@ -344,7 +347,7 @@ export const DIARY_TITLES = {
 export const DIARY_OPENINGS = {
   great: [
     "Dear Diary,\n\nBig month. Let me write this down before I forget how good it feels. {partnerRef}",
-    "Dear Diary,\n\nMonth {month} in the books. I've been making MOVES. Nobody is doing it like me. Maybe Warren Buffett but he doesn't run a PayMore so. {partnerRef}",
+    "Dear Diary,\n\nMonth {month} in the books. I've been making MOVES. Nobody is doing it like me. Maybe Warren Buffett but he doesn't run a AcquireMore so. {partnerRef}",
     "Dear Diary,\n\nI'm not saying I'm a genius but if you look at the data (don't look at the data just trust me) — month {month} was incredible. {partnerRef}",
   ],
   ok: [
@@ -435,6 +438,14 @@ export const DAN_DESPERATE = {
     "• LIQUIDATED {city}. Got {amount} back. It's not a fire sale. It's a strategic pivot. The difference matters to me.",
     "• Sold {city} for {amount}. Sometimes you gotta cut the dead weight. (I'm the one who bought the dead weight but we're moving forward.)",
   ],
+  golf: [
+    "• Bet a buddy $100k I could beat him in golf. {result}. Dan would be proud. Or horrified. Hard to tell with Dan.",
+    "• Made a golf bet for $100k. {result}. Michael keeps telling me golf isn't an investment strategy. But what does he know. (He knows a lot actually.)",
+  ],
+  memecoin: [
+    "• Put $75k into a friend's meme coin. {result}. Milo asked Claude if this was smart. Claude said no. Claude was right. Or wrong. Depends on the result.",
+    "• Invested in a meme coin called $ACQUIRE. {result}. Stephen said I should've put it in dirty drinks instead. Maybe he's right.",
+  ],
 };
 
 // No-gamble boasting — type-specific when desperate measure was available but NOT used
@@ -458,6 +469,16 @@ export const DAN_NO_GAMBLE = {
     "• Thought about liquidating one of my stores this month. Decided against it. We're GROWING, not shrinking. That's the ILP way.",
     "• Could've sold a store for quick cash. Chose to keep it. Even the bad ones are like children to me. Expensive, ungrateful children.",
     "• Had the option to fire-sale a location this month. Said no. Every store has potential. Even the ones that are actively losing money. ESPECIALLY those ones.",
+  ],
+  golf: [
+    "• A buddy challenged me to a $100k golf bet this month. I said no. My golf game is bad enough without money on the line. Dan would've taken it though.",
+    "• Someone wanted to bet me $100k on the golf course. I walked away. Michael says my swing is 'a liability.' He's not wrong.",
+    "• Had the chance to make a huge golf bet. Declined. I gamble enough at work. My short game is not an asset class.",
+  ],
+  memecoin: [
+    "• A friend tried to get me to invest in his meme coin this month. I said no. Milo asked Claude about it. Claude said 'absolutely not.' For once I agree with the robot.",
+    "• Someone pitched me a meme coin called $FRANCHISE. I resisted. My portfolio is already a meme. Don't need to add more.",
+    "• Had the option to YOLO $75k into a meme coin. Said no. Stephen said even HIS dirty drink business is less risky than crypto. He's right.",
   ],
   _fallback: [
     "• Had the chance to do something desperate this month and I didn't. That's called restraint. I'm basically a monk. A franchise monk.",
@@ -486,14 +507,6 @@ export const DAN_SIGNOFFS = [
   "If you squint at the trajectory we are CRUSHING it.\n\n— ILP Management Team (Population: 1)",
   "Everything is going according to plan. (I just made the plan 5 minutes ago but still.)\n\n— ILP Worldwide",
   "I promise next month's entry is gonna be the one where I go 'wow I really turned it around.'\n\n— ILP (undefeated in spirit)",
-];
-
-export const DAN_DOWNTURN_START = [
-  "P.S. — markets are in downturn. Everything is down 25%. I predicted this (I didn't but nobody keeps records right??). WE WILL EMERGE STRONGER.",
-];
-
-export const DAN_DOWNTURN_END = [
-  "P.S. — downturn is OVER. We survived. I'm telling everyone this was my strategy the whole time. Ride it out. Genius.",
 ];
 
 // =================== LEADERBOARD ===================

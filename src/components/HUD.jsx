@@ -10,7 +10,6 @@ export default function HUD({
   ownedStores,
   activeEvents,
   eventLog,
-  downturn,
   storeLossStreaks,
 }) {
   const cashColor = cash > 500000
@@ -29,12 +28,6 @@ export default function HUD({
 
   return (
     <div className="hud-panel">
-      {downturn?.active && (
-        <div className="downturn-banner">
-          📉 MARKET DOWNTURN — Revenue -25% | Debt rate 2.5%/mo | Prices discounted
-        </div>
-      )}
-
       <div className="hud-stat">
         <span className="hud-label">CASH</span>
         <span className="hud-value" style={{ color: cashColor }}>
@@ -56,7 +49,7 @@ export default function HUD({
         </span>
         {debt > 0 && (
           <span className="hud-sub-detail debt-growth">
-            Growing +${debtInterest.toLocaleString()}/mo{downturn?.active ? " (downturn rate)" : ""}
+            Growing +${debtInterest.toLocaleString()}/mo
           </span>
         )}
       </div>

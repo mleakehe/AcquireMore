@@ -10,7 +10,7 @@ export default function PasswordGate({ onAuth }) {
   function handleSubmit(e) {
     e.preventDefault();
     if (pw.trim().toUpperCase() === PASSWORD) {
-      localStorage.setItem("paymore-auth", "true");
+      localStorage.setItem("acquiremore-auth", "true");
       onAuth();
     } else {
       setError(true);
@@ -24,7 +24,7 @@ export default function PasswordGate({ onAuth }) {
       <div className="scanline-overlay" />
       <div className={`gate-box ${shake ? "shake" : ""}`}>
         <h1 className="gate-title">
-          <span className="pay">PAY</span>
+          <span className="pay">ACQUIRE</span>
           <span className="more">MORE</span>
         </h1>
         <p className="gate-subtitle">THE ACQUISITION GAME</p>

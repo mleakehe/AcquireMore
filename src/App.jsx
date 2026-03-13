@@ -12,12 +12,12 @@ import Leaderboard from "./components/Leaderboard";
 import { useGameState } from "./hooks/useGameState";
 import { playMonthTick, playClick } from "./utils/sound";
 import { recordGamePlayed } from "./utils/leaderboard";
-import { BLACKJACK_STAKES, LOTTERY_COST, INITIATIVE_COST } from "./data/constants";
+import { BLACKJACK_STAKES, LOTTERY_COST, GOLF_BET_COST, MEMECOIN_COST, INITIATIVE_COST } from "./data/constants";
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 export default function App() {
-  const [authed, setAuthed] = useState(() => localStorage.getItem("paymore-auth") === "true");
+  const [authed, setAuthed] = useState(() => localStorage.getItem("acquiremore-auth") === "true");
   const [gameStarted, setGameStarted] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [monthFlash, setMonthFlash] = useState(false);
@@ -149,14 +149,11 @@ export default function App() {
 
       <div className="game-top-bar">
         <div className="top-brand">
-          <span className="pay">PAY</span>
+          <span className="pay">ACQUIRE</span>
           <span className="more">MORE</span>
         </div>
         <div className="top-actions">
           <span className="month-indicator">MONTH {state.month} / 10</span>
-          {state.downturn?.active && (
-            <span className="downturn-badge">📉 DOWNTURN</span>
-          )}
           <button
             className="lb-btn"
             onClick={() => { playClick(); setShowLeaderboard(true); }}
@@ -195,6 +192,8 @@ export default function App() {
                 {desperateType === "dan" && "🙏 BEG DAN FOR MONEY"}
                 {desperateType === "blackjack" && "🃏 GAMBLE AT BLACKJACK"}
                 {desperateType === "lottery" && "🎰 BUY LOTTERY TICKETS"}
+                {desperateType === "golf" && "⛳ BET YOUR BUDDY AT GOLF"}
+                {desperateType === "memecoin" && "🪙 INVEST IN MEME COIN"}
                 {desperateType === "liquidate" && "🔥 LIQUIDATE A STORE"}
               </button>
             )}
@@ -212,7 +211,6 @@ export default function App() {
             ownedStores={state.ownedStores}
             activeEvents={state.activeEvents}
             eventLog={state.eventLog}
-            downturn={state.downturn}
             storeLossStreaks={state.storeLossStreaks}
           />
 
@@ -283,11 +281,37 @@ export default function App() {
               <>
                 <h2 className="desperate-title">🎰 BUY LOTTERY TICKETS</h2>
                 <p className="desperate-desc">
-                  Cost: ${LOTTERY_COST.toLocaleString()}. 2% chance to win $2,000,000.
-                  98% chance to light $50k on fire.
+                  Cost: ${LOTTERY_COST.toLocaleString()}. 10% chance to win $2,000,000.
+                  90% chance to light $50k on fire.
                 </p>
                 <button className="desperate-go" onClick={() => handleDesperateAction("lottery")}>
                   BUY TICKETS
+                </button>
+              </>
+            )}
+
+            {desperateType === "golf" && (
+              <>
+                <h2 className="desperate-title">⛳ BET YOUR BUDDY AT GOLF</h2>
+                <p className="desperate-desc">
+                  Your buddy says he can beat you. $100k on the line.
+                  40% chance you win and double your money. 60% chance you embarrass yourself AND lose $100k.
+                </p>
+                <button className="desperate-go" onClick={() => handleDesperateAction("golf")}>
+                  TEE IT UP
+                </button>
+              </>
+            )}
+
+            {desperateType === "memecoin" && (
+              <>
+                <h2 className="desperate-title">🪙 INVEST IN MEME COIN</h2>
+                <p className="desperate-desc">
+                  A friend launched $ACQUIRE coin. Cost: ${MEMECOIN_COST.toLocaleString()}.
+                  8% chance it moons (10x). 25% chance it doubles. 67% chance it gets rug pulled.
+                </p>
+                <button className="desperate-go" onClick={() => handleDesperateAction("memecoin")}>
+                  APE IN
                 </button>
               </>
             )}

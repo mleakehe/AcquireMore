@@ -10,14 +10,15 @@ import {
   ACQ_DOWN_PAYMENT_PCT_MIN, ACQ_DOWN_PAYMENT_PCT_MAX,
   ACQ_VALUATION_MULTIPLE_MIN, ACQ_VALUATION_MULTIPLE_MAX, ACQ_LOSER_DISCOUNT,
   BUILD_COST_MIN, BUILD_COST_MAX,
-  DEBT_INTEREST_RATE, DEBT_INTEREST_RATE_DOWNTURN,
+  DEBT_INTEREST_RATE,
   CLOSURE_STREAK, CLOSURE_COST,
-  DOWNTURN_EARLIEST, DOWNTURN_LATEST, DOWNTURN_DURATION_MIN, DOWNTURN_DURATION_MAX,
-  DOWNTURN_REVENUE_MULTIPLIER, DOWNTURN_PRICE_MULTIPLIER,
   DAN_WHEEL_SEGMENTS, DAN_COOLDOWN_MONTHS,
   BLACKJACK_WIN_CHANCE, BLACKJACK_STAKES,
   LOTTERY_COST, LOTTERY_WIN_CHANCE, LOTTERY_WIN_AMOUNT,
   LIQUIDATE_RECOVERY_RATE,
+  GOLF_BET_COST, GOLF_WIN_CHANCE, GOLF_WIN_AMOUNT,
+  MEMECOIN_COST, MEMECOIN_MOON_CHANCE, MEMECOIN_MOON_AMOUNT,
+  MEMECOIN_PARTIAL_CHANCE, MEMECOIN_PARTIAL_AMOUNT,
   POSITIVE_EVENTS, NEGATIVE_EVENTS,
   POST_CLOSE_CHANCE, POST_CLOSE_GOOD_EVENTS, POST_CLOSE_BAD_EVENTS,
   POST_CLOSE_GOOD_NARRATIVES, POST_CLOSE_BAD_NARRATIVES,
@@ -211,7 +212,7 @@ function generateRevenue(tier, cmRate, leaseRate) {
 }
 
 /* =================== CARD GENERATION =================== */
-function generateDealCards(cityPool, ownedStores, downturn, month) {
+function generateDealCards(cityPool, ownedStores, month) {
   // 6 tiers on a spectrum: great → good → ok → mediocre → bad → terrible
   const tiers = shuffle([...CARD_TIER_DISTRIBUTION]);
 
@@ -270,7 +271,6 @@ function generateDealCards(cityPool, ownedStores, downturn, month) {
       let multiple = randFloat(ACQ_VALUATION_MULTIPLE_MIN, ACQ_VALUATION_MULTIPLE_MAX);
       let price = Math.max(50_000, Math.round(Math.abs(annualProfit) * multiple));
       if (tier === "bad" || tier === "terrible") price = Math.round(price * ACQ_LOSER_DISCOUNT);
-      if (downturn?.active) price = Math.round(price * DOWNTURN_PRICE_MULTIPLIER);
 
       // Down payment: 10-60% in 5% increments
       const dpSteps = Math.round((ACQ_DOWN_PAYMENT_PCT_MAX - ACQ_DOWN_PAYMENT_PCT_MIN) / 0.05);
@@ -411,6 +411,16 @@ function pickDesperateMeasure(ownedStores, cash, lastDanMonth, month) {
     options.push("lottery");
   }
 
+  // Golf bet (if you can afford it)
+  if (cash >= GOLF_BET_COST) {
+    options.push("golf");
+  }
+
+  // Meme coin (if you can afford it)
+  if (cash >= MEMECOIN_COST) {
+    options.push("memecoin");
+  }
+
   // Liquidate (if you own stores)
   if (ownedStores.length > 0) {
     options.push("liquidate");
@@ -456,8 +466,52 @@ function executeLottery() {
     cost: LOTTERY_COST,
     amount: win ? LOTTERY_WIN_AMOUNT - LOTTERY_COST : -LOTTERY_COST,
     message: win
-      ? `JACKPOT! $${LOTTERY_WIN_AMOUNT.toLocaleString()}! The odds were 2%. You absolute maniac.`
-      : `Nothing. $${LOTTERY_COST.toLocaleString()} gone. The odds were 2%. What did you expect?`,
+      ? `JACKPOT! $${LOTTERY_WIN_AMOUNT.toLocaleString()}! The odds were 10%. You absolute maniac.`
+      : `Nothing. $${LOTTERY_COST.toLocaleString()} gone. The odds were 10%. Better luck next time.`,
+  };
+}
+
+function executeGolfBet() {
+  const win = Math.random() < GOLF_WIN_CHANCE;
+  return {
+    won: win,
+    cost: GOLF_BET_COST,
+    amount: win ? GOLF_WIN_AMOUNT - GOLF_BET_COST : -GOLF_BET_COST,
+    message: win
+      ? `You won the golf bet! +$${(GOLF_WIN_AMOUNT - GOLF_BET_COST).toLocaleString()}. Your buddy is NOT happy.`
+      : `Lost the golf bet. -$${GOLF_BET_COST.toLocaleString()}. Your buddy is buying new clubs with YOUR money.`,
+  };
+}
+
+function executeMemecoin() {
+  const roll = Math.random();
+  if (roll < MEMECOIN_MOON_CHANCE) {
+    // MOON — 10x
+    return {
+      won: true,
+      mooned: true,
+      cost: MEMECOIN_COST,
+      amount: MEMECOIN_MOON_AMOUNT - MEMECOIN_COST,
+      message: `$ACQUIRE TO THE MOON! 10x return! +$${(MEMECOIN_MOON_AMOUNT - MEMECOIN_COST).toLocaleString()}! Your friend is a GENIUS.`,
+    };
+  }
+  if (roll < MEMECOIN_MOON_CHANCE + MEMECOIN_PARTIAL_CHANCE) {
+    // 2x
+    return {
+      won: true,
+      mooned: false,
+      cost: MEMECOIN_COST,
+      amount: MEMECOIN_PARTIAL_AMOUNT - MEMECOIN_COST,
+      message: `Meme coin doubled! +$${(MEMECOIN_PARTIAL_AMOUNT - MEMECOIN_COST).toLocaleString()}. Not bad. Not a Lambo, but not bad.`,
+    };
+  }
+  // Rug pull — total loss
+  return {
+    won: false,
+    mooned: false,
+    cost: MEMECOIN_COST,
+    amount: -MEMECOIN_COST,
+    message: `Rug pulled. $${MEMECOIN_COST.toLocaleString()} gone. The coin's website is now a 404. Classic.`,
   };
 }
 
@@ -472,15 +526,10 @@ function executeLiquidate(store) {
 }
 
 /* =================== STORE CLOSURES =================== */
-function updateStoreLossStreaks(ownedStores, streaks, downturn) {
+function updateStoreLossStreaks(ownedStores, streaks) {
   const updated = { ...streaks };
   for (const store of ownedStores) {
-    let profit = store.profit;
-    if (downturn?.active) {
-      const adjRevenue = Math.round(store.revenue * DOWNTURN_REVENUE_MULTIPLIER);
-      profit = computeStoreProfit(adjRevenue, store.cmRate, store.leaseRate);
-    }
-    updated[store.id] = profit < 0 ? (updated[store.id] || 0) + 1 : 0;
+    updated[store.id] = store.profit < 0 ? (updated[store.id] || 0) + 1 : 0;
   }
   return updated;
 }
@@ -491,29 +540,18 @@ function findClosures(streaks) {
     .map(([id]) => Number(id));
 }
 
-/* =================== DOWNTURN =================== */
-function initDownturnTiming() {
-  const startMonth = rand(DOWNTURN_EARLIEST, DOWNTURN_LATEST);
-  const duration = rand(DOWNTURN_DURATION_MIN, DOWNTURN_DURATION_MAX);
-  return { startMonth, duration, endMonth: startMonth + duration };
-}
-
 /* =================== MONTHLY CASH FLOW =================== */
 function computeMonthlyCashFlow(state) {
-  const dm = state.downturn?.active ? DOWNTURN_REVENUE_MULTIPLIER : 1;
   let storeCF = 0;
   for (const s of state.ownedStores) {
-    const adjRevenue = Math.round(s.revenue * dm);
-    const profit = computeStoreProfit(adjRevenue, s.cmRate, s.leaseRate);
-    storeCF += profit;
+    storeCF += s.profit;
   }
 
   let eventCF = 0;
   for (const e of state.activeEvents) eventCF += e.cashFlow;
 
   const overhead = CORPORATE_OVERHEAD_BASE + (CORPORATE_OVERHEAD_PER_STORE * state.ownedStores.length);
-  const debtRate = state.downturn?.active ? DEBT_INTEREST_RATE_DOWNTURN : DEBT_INTEREST_RATE;
-  const debtInterest = Math.round(state.debt * debtRate);
+  const debtInterest = Math.round(state.debt * DEBT_INTEREST_RATE);
 
   const net = storeCF + eventCF - overhead;
 
@@ -523,8 +561,7 @@ function computeMonthlyCashFlow(state) {
 /* =================== INITIAL STATE =================== */
 function createInitialState() {
   const cityPool = generateCityPool();
-  const downturnTiming = initDownturnTiming();
-  const cards = generateDealCards(cityPool, [], null, 1);
+  const cards = generateDealCards(cityPool, [], 1);
   const desperateMeasure = pickDesperateMeasure([], STARTING_CASH, null, 1);
 
   return {
@@ -538,8 +575,6 @@ function createInitialState() {
     activeEvents: [],
     eventLog: [],
     storeLossStreaks: {},
-    downturnTiming,
-    downturn: null,
 
     // 5-card system
     cards,
@@ -703,6 +738,36 @@ function reducer(state, action) {
         };
       }
 
+      if (actionType === "golf") {
+        const result = executeGolfBet();
+        s = {
+          ...s,
+          cash: s.cash + result.amount,
+          monthActions: { ...s.monthActions, desperate: { type: "golf", ...result } },
+          popup: {
+            type: result.won ? "homerun" : "lemon",
+            message: result.won ? "GOLF PRO!" : "TRIPLE BOGEY",
+            subtext: result.message,
+            cashFlow: result.amount,
+          },
+        };
+      }
+
+      if (actionType === "memecoin") {
+        const result = executeMemecoin();
+        s = {
+          ...s,
+          cash: s.cash + result.amount,
+          monthActions: { ...s.monthActions, desperate: { type: "memecoin", ...result } },
+          popup: {
+            type: result.won ? "homerun" : "lemon",
+            message: result.mooned ? "TO THE MOON! 🚀" : result.won ? "GAINS!" : "RUG PULLED",
+            subtext: result.message,
+            cashFlow: result.amount,
+          },
+        };
+      }
+
       if (actionType === "liquidate") {
         const store = s.ownedStores.find(st => st.id === params?.storeId);
         if (!store) return state;
@@ -795,7 +860,7 @@ function reducer(state, action) {
       }
 
       // Store loss streaks & closures
-      let streaks = updateStoreLossStreaks(state.ownedStores, state.storeLossStreaks, state.downturn);
+      let streaks = updateStoreLossStreaks(state.ownedStores, state.storeLossStreaks);
       const closureIds = findClosures(streaks);
       let ownedStores = [...state.ownedStores];
       let totalStores = state.totalStores;
@@ -811,13 +876,6 @@ function reducer(state, action) {
         }
       }
 
-      // Downturn check
-      let downturn = state.downturn;
-      let downturnEvent = null;
-      const t = state.downturnTiming;
-      if (!downturn && month >= t.startMonth) { downturn = { active: true }; downturnEvent = "start"; }
-      else if (downturn?.active && month >= t.endMonth) { downturn = null; downturnEvent = "end"; }
-
       // Event log
       let eventLog = [...state.eventLog];
       if (newEvent) eventLog = [{ ...newEvent, month: state.month }, ...eventLog].slice(0, 20);
@@ -832,7 +890,6 @@ function reducer(state, action) {
         debtInterest: cf.debtInterest,
         actions: state.monthActions,
         closures,
-        downturnEvent,
         totalStores,
         cash,
         debt,
@@ -857,7 +914,7 @@ function reducer(state, action) {
       let newCards = [];
       let newDesperateMeasure = null;
       if (phase === "playing") {
-        newCards = generateDealCards(state.cityPool, ownedStores, downturn, month);
+        newCards = generateDealCards(state.cityPool, ownedStores, month);
         newDesperateMeasure = pickDesperateMeasure(ownedStores, cash, state.lastDanMonth, month);
       }
 
@@ -872,7 +929,6 @@ function reducer(state, action) {
         activeEvents,
         eventLog,
         storeLossStreaks: streaks,
-        downturn,
 
         // Reset card selection for next month
         cards: newCards,
@@ -910,7 +966,7 @@ export function useGameState() {
   const [state, dispatch] = useReducer(reducer, null, createInitialState);
 
   const cf = useMemo(() => computeMonthlyCashFlow(state), [
-    state.ownedStores, state.activeEvents, state.debt, state.downturn,
+    state.ownedStores, state.activeEvents, state.debt,
   ]);
 
   const monthsOfRunway = cf.net >= 0 ? 999 : Math.floor(state.cash / Math.abs(cf.net));
