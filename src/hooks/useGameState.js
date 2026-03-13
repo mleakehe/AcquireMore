@@ -396,7 +396,7 @@ function executeDeal(card, state) {
 function pickDesperateMeasure(ownedStores, cash, lastDanMonth, month) {
   const options = [];
 
-  // Beg Dan (if cooldown expired)
+  // Beg Shandon (if cooldown expired)
   if (lastDanMonth === null || (month - lastDanMonth) >= DAN_COOLDOWN_MONTHS) {
     options.push("dan");
   }
@@ -436,10 +436,10 @@ function executeDan() {
     segment,
     amount: segment.amount,
     message: segment.amount > 0
-      ? `Dan is feeling ${segment.label}! +$${segment.amount.toLocaleString()}`
+      ? `Shandon is feeling ${segment.label}! +$${segment.amount.toLocaleString()}`
       : segment.amount < 0
-        ? `Dan says "${segment.label}." You owe him $${Math.abs(segment.amount).toLocaleString()}.`
-        : `Dan says "${segment.label}." No money for you.`,
+        ? `Shandon says "${segment.label}." You owe him $${Math.abs(segment.amount).toLocaleString()}.`
+        : `Shandon says "${segment.label}." No money for you.`,
     success: segment.amount > 0,
   };
 }
@@ -584,6 +584,9 @@ function createInitialState() {
     dealQualityMsg: null,     // feedback after confirming
     postCloseEvent: null,     // wild event after confirming
 
+    // Deal history — track tier of each picked card for investor accuracy grade
+    dealHistory: [],           // array of { month, tier } objects
+
     // Desperate measures
     desperateMeasure,         // "dan" | "blackjack" | "lottery" | "liquidate" | null
     desperateUsed: false,     // used this month?
@@ -678,6 +681,7 @@ function reducer(state, action) {
         postCloseEvent,
         monthActions: { ...state.monthActions, deal: result.action },
         popup: result.popup,
+        dealHistory: [...state.dealHistory, { month: state.month, tier: card.tier }],
       };
     }
 
@@ -701,7 +705,7 @@ function reducer(state, action) {
           monthActions: { ...s.monthActions, desperate: { type: "dan", ...result } },
           popup: {
             type: result.success ? "homerun" : result.amount < 0 ? "lemon" : "solid",
-            message: "BEG DAN FOR MONEY",
+            message: "BEG SHANDON FOR MONEY",
             subtext: result.message,
             cashFlow: result.amount,
           },

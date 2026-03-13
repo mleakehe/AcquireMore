@@ -292,8 +292,7 @@ export const COLORS = {
 // Monthly journal entry from the ILP franchise CEO
 // Tone: Michael Scott writing in his diary. Unfiltered. Stream of consciousness.
 // Each entry includes at least one funny reference to a partner:
-//   Dan — Utah, golf, mountain biking, investing
-//   Stephen — built his own dirty drink concept
+//   Shandon — Utah, golf, mountain biking, investing
 //   Michael — Charlotte, finance background, loves golf
 //   Jake — Savannah, long ponytail + beard, loves walking his dog
 //   Milo — Savannah, obsessed with Claude (AI)
@@ -301,14 +300,11 @@ export const COLORS = {
 
 // Partner reference snippets — picked randomly and inserted into entries
 export const PARTNER_REFERENCES = [
-  "Dan called from somewhere in Utah. Could hear wind. Either mountain biking or falling off a cliff. Either way he sounded fine.",
-  "Dan texted me from the golf course. Said 'how's the portfolio.' I said 'which one.' He said 'the one that's losing money.' I said 'you'll have to be more specific.'",
-  "Dan sent me an article about investing. I didn't read it but I said I did. Pretty sure he does the same with my updates.",
-  "Got a voicemail from Dan. Background noise was either a mountain bike trail or a bear attack. He seemed happy either way.",
-  "Dan wants to talk about 'diversifying.' Easy to say from a golf cart in Park City.",
-  "Stephen pitched me on some kind of dirty drink concept again. I don't fully understand it but I respect the hustle. The man sees a blender and has a vision.",
-  "Stephen called to say his dirty drink thing is blowing up. Meanwhile I'm over here running a REAL business. Ok his might also be real. Whatever.",
-  "Stephen says I should add a dirty drink bar inside my stores. I told him that's either genius or a health code violation. Maybe both.",
+  "Shandon called from somewhere in Utah. Could hear wind. Either mountain biking or falling off a cliff. Either way he sounded fine.",
+  "Shandon texted me from the golf course. Said 'how's the portfolio.' I said 'which one.' He said 'the one that's losing money.' I said 'you'll have to be more specific.'",
+  "Shandon sent me an article about investing. I didn't read it but I said I did. Pretty sure he does the same with my updates.",
+  "Got a voicemail from Shandon. Background noise was either a mountain bike trail or a bear attack. He seemed happy either way.",
+  "Shandon wants to talk about 'diversifying.' Easy to say from a golf cart in Park City.",
   "Michael called from Charlotte to review my numbers. He has a 'finance background' which means he judges my spreadsheets professionally. Not recreationally like the rest of us.",
   "Michael wants to golf this weekend. I said sure but last time he spent 18 holes telling me my EBITDA was wrong. I don't even know what EBITDA stands for. I'm not asking.",
   "Michael sent me a 'financial model.' It had 47 tabs. I opened 2 of them and closed the laptop. That man sees the world in pivot tables.",
@@ -423,8 +419,8 @@ export const DAN_CLOSURE = [
 
 export const DAN_DESPERATE = {
   dan: [
-    "• Called Dan for money. Result: {result}. I could hear him golfing. He didn't even pause his swing.",
-    "• Begged Dan for cash. {result}. Pretty sure he was mountain biking while I was pleading. Could hear gravel.",
+    "• Called Shandon for money. Result: {result}. I could hear him golfing. He didn't even pause his swing.",
+    "• Begged Shandon for cash. {result}. Pretty sure he was mountain biking while I was pleading. Could hear gravel.",
   ],
   blackjack: [
     "• Went to a casino. {result}. BEFORE I judge myself — this was a calculated risk. I did the math. (I did not do the math)",
@@ -439,21 +435,21 @@ export const DAN_DESPERATE = {
     "• Sold {city} for {amount}. Sometimes you gotta cut the dead weight. (I'm the one who bought the dead weight but we're moving forward.)",
   ],
   golf: [
-    "• Bet a buddy $100k I could beat him in golf. {result}. Dan would be proud. Or horrified. Hard to tell with Dan.",
+    "• Bet a buddy $100k I could beat him in golf. {result}. Shandon would be proud. Or horrified. Hard to tell with Shandon.",
     "• Made a golf bet for $100k. {result}. Michael keeps telling me golf isn't an investment strategy. But what does he know. (He knows a lot actually.)",
   ],
   memecoin: [
     "• Put $75k into a friend's meme coin. {result}. Milo asked Claude if this was smart. Claude said no. Claude was right. Or wrong. Depends on the result.",
-    "• Invested in a meme coin called $ACQUIRE. {result}. Stephen said I should've put it in dirty drinks instead. Maybe he's right.",
+    "• Invested in a meme coin called $ACQUIRE. {result}. Shandon said I should've put the money in real investments instead. He's probably right.",
   ],
 };
 
 // No-gamble boasting — type-specific when desperate measure was available but NOT used
 export const DAN_NO_GAMBLE = {
   dan: [
-    "• Had the chance to call Dan begging for money this month. Didn't do it. That's called PRIDE. He's probably on hole 14 somewhere in Utah anyway.",
-    "• Could've picked up the phone and groveled to Dan for cash. Chose not to. He's probably mountain biking and wouldn't answer anyway.",
-    "• Dan's number was RIGHT THERE in my phone and I resisted. No begging. No groveling. Just pure self-reliance.",
+    "• Had the chance to call Shandon begging for money this month. Didn't do it. That's called PRIDE. He's probably on hole 14 somewhere in Utah anyway.",
+    "• Could've picked up the phone and groveled to Shandon for cash. Chose not to. He's probably mountain biking and wouldn't answer anyway.",
+    "• Shandon's number was RIGHT THERE in my phone and I resisted. No begging. No groveling. Just pure self-reliance.",
   ],
   blackjack: [
     "• A buddy invited me to a blackjack table this month. I said no. That's growth. That's maturity. I'm basically a monk. A franchise monk.",
@@ -471,14 +467,14 @@ export const DAN_NO_GAMBLE = {
     "• Had the option to fire-sale a location this month. Said no. Every store has potential. Even the ones that are actively losing money. ESPECIALLY those ones.",
   ],
   golf: [
-    "• A buddy challenged me to a $100k golf bet this month. I said no. My golf game is bad enough without money on the line. Dan would've taken it though.",
+    "• A buddy challenged me to a $100k golf bet this month. I said no. My golf game is bad enough without money on the line. Shandon would've taken it though.",
     "• Someone wanted to bet me $100k on the golf course. I walked away. Michael says my swing is 'a liability.' He's not wrong.",
     "• Had the chance to make a huge golf bet. Declined. I gamble enough at work. My short game is not an asset class.",
   ],
   memecoin: [
     "• A friend tried to get me to invest in his meme coin this month. I said no. Milo asked Claude about it. Claude said 'absolutely not.' For once I agree with the robot.",
     "• Someone pitched me a meme coin called $FRANCHISE. I resisted. My portfolio is already a meme. Don't need to add more.",
-    "• Had the option to YOLO $75k into a meme coin. Said no. Stephen said even HIS dirty drink business is less risky than crypto. He's right.",
+    "• Had the option to YOLO $75k into a meme coin. Said no. Shandon said even his worst investment is less risky than crypto. He's right.",
   ],
   _fallback: [
     "• Had the chance to do something desperate this month and I didn't. That's called restraint. I'm basically a monk. A franchise monk.",
@@ -490,7 +486,7 @@ export const DAN_GAMBLING_RESISTANCE = [
   "• Some guy at the gas station tried to sell me on scratch-offs again. I said no. I'm running a COMPANY. A company that's basically a scratch-off itself but at least it's MY scratch-off.",
   "• Drove past the casino on the way home. Didn't stop. Didn't even slow down. Ok I slowed down a little. But I didn't STOP. Growth.",
   "• A buddy texted me about a 'can't miss' poker night. I said I already gamble every single day — it's called franchise ownership. He didn't laugh. It wasn't a joke.",
-  "• Saw a billboard for the state lottery. Jackpot was $400M. Kept driving. My financial advisor (me) says I should only gamble with other people's money (Dan's).",
+  "• Saw a billboard for the state lottery. Jackpot was $400M. Kept driving. My financial advisor (me) says I should only gamble with other people's money (Shandon's).",
   "• Somebody at Starbucks was scratching lottery tickets and winning $20. I could feel the temptation. But no. I invest in REAL things. Like stores that lose $15k a month.",
   "• Had a dream about winning the Powerball last night. Woke up and almost bought tickets. Then I remembered I already gamble enough just by existing as a franchise owner.",
   "• A friend tried to get me into sports betting this month. I said 'I already bet my life savings on a franchise empire, what more do you want from me.'",

@@ -12,7 +12,7 @@ const SEGMENT_COLORS = [
   "#1a2a4e", "#2a2a3e",
 ];
 
-export default function ValuationWheel({ netCashFlow, debt, onComplete }) {
+export default function ValuationWheel({ netCashFlow, debt, cash, onComplete }) {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [rotation, setRotation] = useState(0);
@@ -127,9 +127,10 @@ export default function ValuationWheel({ netCashFlow, debt, onComplete }) {
       } else {
         const annualCF = netCashFlow * 12;
         const grossValuation = annualCF * multiple;
-        const finalValuation = Math.max(0, grossValuation - debt);
+        const enterpriseValue = Math.max(0, grossValuation - debt);
+        const finalValuation = enterpriseValue + cash;
         playSpinResult();
-        setResult({ multiple, grossValuation, finalValuation, annualCF, debt });
+        setResult({ multiple, grossValuation, enterpriseValue, finalValuation, annualCF, debt, cash });
         setSpinning(false);
         setTimeout(() => setShowResult(true), 500);
       }
@@ -156,7 +157,8 @@ export default function ValuationWheel({ netCashFlow, debt, onComplete }) {
       <h2 className="wheel-title">THE MARKET DECIDES YOUR FATE</h2>
       <p className="wheel-subtitle">
         Annual Net Cashflow: ${(netCashFlow * 12).toLocaleString()}
-        {debt > 0 && ` | Outstanding Debt: $${debt.toLocaleString()}`}
+        {debt > 0 && ` | Debt: $${debt.toLocaleString()}`}
+        {` | Cash: $${cash.toLocaleString()}`}
       </p>
 
       <div className="wheel-wrapper">
@@ -179,22 +181,24 @@ export default function ValuationWheel({ netCashFlow, debt, onComplete }) {
           <p className="wheel-multiple">{result.multiple}x MULTIPLE</p>
           <p className="wheel-flavor">{flavorText}</p>
 
-          {debt > 0 && (
-            <div className="wheel-debt-calc">
-              <p className="wheel-calc-line">
-                Gross Valuation: ${result.grossValuation.toLocaleString()}
-              </p>
+          <div className="wheel-debt-calc">
+            <p className="wheel-calc-line">
+              Gross Valuation: ${result.grossValuation.toLocaleString()}
+            </p>
+            {debt > 0 && (
               <p className="wheel-calc-line wheel-calc-debt">
-                - Debt Monster: ${debt.toLocaleString()}
+                - Debt: ${debt.toLocaleString()}
               </p>
-            </div>
-          )}
+            )}
+            <p className="wheel-calc-line wheel-calc-cash">
+              + Cash on Hand: ${result.cash.toLocaleString()}
+            </p>
+          </div>
 
           <div className="wheel-valuation">
             <span className="wheel-val-label">FINAL VALUATION</span>
-            <span className={`wheel-val-number ${result.finalValuation === 0 ? 'val-negative' : ''}`}>
+            <span className={`wheel-val-number ${result.finalValuation <= 0 ? 'val-negative' : ''}`}>
               ${result.finalValuation.toLocaleString()}
-              {result.finalValuation === 0 ? ' (debt ate it all)' : ''}
             </span>
           </div>
           <button className="wheel-continue-btn" onClick={() => onComplete(result)}>

@@ -48,7 +48,7 @@ export default function IntroScreen({ onStart }) {
               <p className="intro-tip">
                 Acquisitions: stable revenue, but expensive (10-60% down, rest is debt at 1.5%/mo).
                 Builds: cheaper, no debt, but revenue is less predictable.
-                When you're desperate, you can beg Dan for cash, gamble at blackjack, buy lottery tickets, bet your buddy at golf, or invest in a meme coin.
+                When you're desperate, you can beg Shandon for cash, gamble at blackjack, buy lottery tickets, bet your buddy at golf, or invest in a meme coin.
               </p>
             </div>
             <button className="intro-btn" onClick={() => setReady(true)}>

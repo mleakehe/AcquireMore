@@ -109,6 +109,7 @@ export default function App() {
           totalStores={state.totalStores}
           ownedStores={state.ownedStores}
           debt={state.debt}
+          dealHistory={state.dealHistory}
           onRestart={handleRestart}
           onShowLeaderboard={() => setShowLeaderboard(true)}
         />
@@ -129,6 +130,7 @@ export default function App() {
           netCashFlow={netCashFlow}
           debt={state.debt}
           cash={state.cash}
+          dealHistory={state.dealHistory}
           onRestart={handleRestart}
           onShowLeaderboard={() => setShowLeaderboard(true)}
         />
@@ -189,7 +191,7 @@ export default function App() {
                 onClick={() => { playClick(); setShowDesperateModal(true); }}
                 disabled={state.popup !== null || state.showMonthReport}
               >
-                {desperateType === "dan" && "🙏 BEG DAN FOR MONEY"}
+                {desperateType === "dan" && "🙏 BEG SHANDON FOR MONEY"}
                 {desperateType === "blackjack" && "🃏 GAMBLE AT BLACKJACK"}
                 {desperateType === "lottery" && "🎰 BUY LOTTERY TICKETS"}
                 {desperateType === "golf" && "⛳ BET YOUR BUDDY AT GOLF"}
@@ -239,9 +241,9 @@ export default function App() {
 
             {desperateType === "dan" && (
               <>
-                <h2 className="desperate-title">🙏 BEG DAN FOR MONEY</h2>
+                <h2 className="desperate-title">🙏 BEG SHANDON FOR MONEY</h2>
                 <p className="desperate-desc">
-                  Dan is your investor. He lives in Utah. He might be on a golf course or mountain bike trail right now.
+                  Shandon is your investor. He lives in Utah. He might be on a golf course or mountain bike trail right now.
                   He might be in a good mood. He might not. Spin the wheel and find out.
                 </p>
                 <p className="desperate-warn">Results range from +$500,000 to -$50,000. 4-month cooldown.</p>

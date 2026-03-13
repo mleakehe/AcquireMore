@@ -41,6 +41,7 @@ export default function Leaderboard({ onClose }) {
                     <th>#</th>
                     <th>NAME</th>
                     <th>VALUATION</th>
+                    <th>GRADE</th>
                     <th>MULT</th>
                     <th>MONTHS</th>
                     <th>DATE</th>
@@ -49,7 +50,7 @@ export default function Leaderboard({ onClose }) {
                 <tbody>
                   {(!data.entries || data.entries.length === 0) && (
                     <tr>
-                      <td colSpan={6} className="lb-empty">
+                      <td colSpan={7} className="lb-empty">
                         No legends yet. Be the first. No pressure.
                       </td>
                     </tr>
@@ -65,6 +66,9 @@ export default function Leaderboard({ onClose }) {
                         </td>
                         <td className={`lb-val ${isBankrupt ? "lb-val-negative" : ""}`}>
                           {formatValuation(e.valuation)}
+                        </td>
+                        <td className={`lb-grade ${e.investorGrade ? `grade-${e.investorGrade.toLowerCase()}` : ""}`}>
+                          {e.investorGrade || "—"}
                         </td>
                         <td>{isBankrupt ? "—" : `${e.multiple}x`}</td>
                         <td>{e.monthsSurvived}</td>

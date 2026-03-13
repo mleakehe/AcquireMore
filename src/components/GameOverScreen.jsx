@@ -2,7 +2,28 @@ import { useState, useEffect } from "react";
 import { playGameOver } from "../utils/sound";
 import { submitScore } from "../utils/leaderboard";
 
-export default function GameOverScreen({ month, cash, totalStores, ownedStores, debt, onRestart, onShowLeaderboard }) {
+// Same tier scoring as EndScreen
+const TIER_SCORES = { great: 5, good: 4, ok: 3, mediocre: 2, bad: 1, terrible: 0 };
+const GRADE_THRESHOLDS = [
+  { min: 4.2, grade: "A", label: "Elite Investor" },
+  { min: 3.4, grade: "B", label: "Sharp Eye" },
+  { min: 2.6, grade: "C", label: "Average Joe" },
+  { min: 1.8, grade: "D", label: "Needs Glasses" },
+  { min: 1.0, grade: "E", label: "Terrible Taste" },
+  { min: 0,   grade: "F", label: "Certified Dumpster Diver" },
+];
+
+function computeInvestorGrade(dealHistory) {
+  if (!dealHistory || dealHistory.length === 0) {
+    return { grade: "N/A", label: "Passed on Everything", avgScore: 0, totalDeals: 0 };
+  }
+  const totalScore = dealHistory.reduce((sum, d) => sum + (TIER_SCORES[d.tier] ?? 0), 0);
+  const avgScore = totalScore / dealHistory.length;
+  const match = GRADE_THRESHOLDS.find(t => avgScore >= t.min) || GRADE_THRESHOLDS[GRADE_THRESHOLDS.length - 1];
+  return { grade: match.grade, label: match.label, avgScore, totalDeals: dealHistory.length };
+}
+
+export default function GameOverScreen({ month, cash, totalStores, ownedStores, debt, dealHistory, onRestart, onShowLeaderboard }) {
   const [phase, setPhase] = useState("summary");
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -11,6 +32,7 @@ export default function GameOverScreen({ month, cash, totalStores, ownedStores, 
 
   const builds = ownedStores.filter(s => s.source === "built").length;
   const acquisitions = ownedStores.filter(s => s.source === "acquired").length;
+  const investorGrade = computeInvestorGrade(dealHistory);
 
   // Bankrupt score: negative outstanding debt (so more debt = worse score)
   const score = debt > 0 ? -debt : 0;
@@ -30,6 +52,7 @@ export default function GameOverScreen({ month, cash, totalStores, ownedStores, 
       builds,
       acquisitions,
       bankrupt: true,
+      investorGrade: investorGrade.grade,
     };
     await submitScore(entry);
     setSubmitting(false);
@@ -78,6 +101,12 @@ export default function GameOverScreen({ month, cash, totalStores, ownedStores, 
                 <span>Leaderboard Score</span>
                 <span style={{ color: "#ff3344" }}>
                   {score === 0 ? "$0" : `-$${Math.abs(score).toLocaleString()}`}
+                </span>
+              </div>
+              <div className="stat-row">
+                <span>Investor Accuracy</span>
+                <span className={`investor-grade grade-${investorGrade.grade.toLowerCase()}`}>
+                  {investorGrade.grade} — {investorGrade.label}
                 </span>
               </div>
             </div>

@@ -17,6 +17,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+button, input { touch-action: manipulation; }
 
 body {
   background: var(--bg);
@@ -309,6 +310,7 @@ body {
   flex-direction: column;
   overflow-y: auto;
   max-height: calc(100vh - 52px);
+  -webkit-overflow-scrolling: touch;
 }
 
 /* =================== STORE GRID =================== */
@@ -1019,6 +1021,8 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .desperate-box {
   background: var(--panel-bg);
@@ -1167,6 +1171,8 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .report-box {
   background: var(--panel-bg);
@@ -1324,6 +1330,7 @@ body {
   margin: 2px 0;
 }
 .wheel-calc-debt { color: var(--red); }
+.wheel-calc-cash { color: var(--green); }
 
 /* =================== POPUP =================== */
 .popup-overlay {
@@ -1335,6 +1342,8 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .popup-box {
   background: var(--panel-bg);
@@ -1664,6 +1673,7 @@ body {
 }
 .lb-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .lb-table {
   width: 100%;
@@ -1707,35 +1717,63 @@ body {
   line-height: 1.5;
 }
 
+/* =================== INVESTOR GRADE =================== */
+.investor-grade {
+  font-family: var(--font-pixel);
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+.grade-a { color: #00ff88; }
+.grade-b { color: #00c8ff; }
+.grade-c { color: #ffdd00; }
+.grade-d { color: #ff6b00; }
+.grade-e { color: #ff3344; }
+.grade-f { color: #990000; }
+.lb-grade {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  font-weight: bold;
+}
+.name-grade {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--dim);
+  margin-bottom: 12px;
+}
+
 /* =================== RESPONSIVE =================== */
+
+/* Tablet: 500–900px */
 @media (max-width: 900px) {
   .game-layout {
     flex-direction: column;
   }
   .game-map-area {
     flex: none;
-    max-height: 35vh;
+    max-height: none;
   }
   .store-grid-container {
-    max-height: 30vh;
+    max-height: 25vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .game-sidebar {
     flex: none;
     border-left: none;
     border-top: 2px solid var(--blue);
     max-height: none;
+    overflow-y: visible;
   }
   .card-panel {
-    max-height: 60vh;
-    overflow-y: auto;
+    max-height: none;
+    overflow-y: visible;
   }
   .card-grid-6 {
     grid-template-columns: repeat(2, 1fr);
   }
   .report-box {
     padding: 24px;
-    max-height: 85vh;
+    max-height: 90vh;
   }
   .hud-value { font-size: 24px; }
   .gate-title, .intro-title { font-size: 48px; }
@@ -1754,36 +1792,188 @@ body {
   }
 }
 
+/* Phone: under 500px */
 @media (max-width: 500px) {
-  .gate-box, .intro-box, .endscreen-box { padding: 24px; }
-  .hud-value { font-size: 20px; }
-  .popup-message { font-size: 24px; }
-  .top-brand { font-size: 24px; }
+  /* Use dvh (dynamic viewport height) to handle mobile browser chrome */
+  .game-container {
+    min-height: 100dvh;
+  }
+  .endscreen-overlay {
+    align-items: flex-start;
+    padding: 16px 0;
+  }
+  .gate-box, .intro-box { padding: 20px; }
+  .endscreen-box { padding: 20px; }
+  .popup-box { padding: 24px; }
+  .desperate-box { padding: 20px; }
+
+  /* Top bar: keep it compact and horizontal */
   .game-top-bar {
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
+    padding: 6px 10px;
   }
+  .top-brand { font-size: 20px; }
   .top-actions {
-    flex-wrap: wrap;
-    gap: 4px;
+    flex-wrap: nowrap;
+    gap: 6px;
   }
+  .month-indicator { font-size: 8px; }
   .lb-btn {
     font-size: 7px;
-    padding: 4px 8px;
+    padding: 5px 8px;
   }
+
+  /* HUD: compact but readable */
+  .hud-panel { padding: 8px; }
+  .hud-value { font-size: 20px; }
+  .hud-month { font-size: 11px; }
+
+  /* Store grid: 2 columns min on phone, condensed */
+  .store-grid-container {
+    max-height: 20vh;
+  }
+  .store-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 4px;
+  }
+  .store-thumb {
+    padding: 6px 4px;
+    gap: 2px;
+  }
+  .store-thumb-name { font-size: 13px; }
+  .store-thumb-icon { font-size: 20px; }
+  .store-thumb-profit { font-size: 14px; }
+
+  /* Cards: 2 columns on phone (not 1 — scrolling through 6 single cards is painful) */
   .card-grid-6 {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
   }
+  .card-panel { padding: 8px; }
+  .deal-card { padding: 6px; }
+  .card-city { font-size: 16px; margin-bottom: 2px; }
+  .card-type-badge { font-size: 6px; padding: 2px 5px; }
+  .signal-row { font-size: 12px; padding: 1px 0; }
+  .card-fin-row { font-size: 12px; }
+  .card-financials { padding: 4px; margin: 4px 0 2px; }
+  .card-signals { margin: 2px 0; }
+
+  /* Action bar */
   .card-action-bar {
     flex-direction: column;
+    gap: 4px;
   }
   .card-btn-confirm, .card-btn-pass-all {
     width: 100%;
+    padding: 10px;
+    font-size: 14px;
   }
-  .store-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 6px;
+  .card-done-msg { font-size: 14px; }
+
+  /* Advance / desperate buttons: larger tap targets */
+  .advance-btn {
+    padding: 12px;
+    font-size: 18px;
   }
-  .store-thumb-name { font-size: 14px; }
-  .store-thumb-icon { font-size: 22px; }
+  .desperate-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+  .map-bottom-bar {
+    gap: 4px;
+    margin: 4px 0;
+  }
+
+  /* Popup: tighter */
+  .popup-message { font-size: 22px; }
+  .popup-subtext { font-size: 16px; }
+  .popup-cashflow { font-size: 28px; }
+  .popup-dismiss { padding: 10px 20px; font-size: 16px; }
+
+  /* Monthly report */
+  .report-box {
+    padding: 16px;
+    max-height: 90vh;
+    width: 96%;
+  }
+  .report-title { font-size: 28px; }
+  .report-summary { font-size: 13px; }
+  .report-bullet { font-size: 12px; padding: 4px 0 4px 16px; }
+  .report-btn { padding: 12px 20px; font-size: 18px; }
+  .dan-greeting { font-size: 13px; }
+  .dan-bullet { font-size: 12px; }
+  .dan-signoff { font-size: 11px; }
+  .diary-title { font-size: 14px; }
+  .diary-icon { font-size: 22px; }
+
+  /* Valuation wheel: scale to fit */
+  .wheel-canvas {
+    width: 280px !important;
+    height: 280px !important;
+  }
+  .wheel-title { font-size: 22px; }
+  .wheel-subtitle { font-size: 7px; }
+  .wheel-multiple { font-size: 36px; }
+  .wheel-flavor { font-size: 16px; }
+  .wheel-val-number { font-size: 36px; }
+  .wheel-spin-btn { padding: 12px 28px; font-size: 20px; }
+  .wheel-continue-btn { padding: 12px 24px; font-size: 18px; }
+
+  /* End / game over screens */
+  .endscreen-title { font-size: 36px; }
+  .endscreen-subtitle { font-size: 16px; }
+  .stat-row { font-size: 8px; padding: 5px 0; }
+  .endscreen-btn { padding: 12px 20px; font-size: 18px; }
+  .name-title { font-size: 22px; }
+  .name-input { font-size: 10px; padding: 12px; }
+  .name-submit { font-size: 18px; padding: 12px; }
+  .name-valuation { font-size: 8px; }
+  .done-title { font-size: 36px; }
+  .done-sub { font-size: 16px; }
+
+  /* Leaderboard: tighter on mobile */
+  .leaderboard-box {
+    padding: 16px;
+    max-height: 90vh;
+  }
+  .lb-title { font-size: 24px; }
+  .lb-table { font-size: 7px; }
+  .lb-table th { padding: 6px 3px; }
+  .lb-table td { padding: 6px 3px; }
+  .lb-date { font-size: 6px !important; }
+
+  /* Desperate modal */
+  .desperate-title { font-size: 22px; }
+  .desperate-desc { font-size: 16px; }
+  .desperate-go { padding: 12px 20px; font-size: 18px; }
+  .desperate-cancel { padding: 8px 16px; font-size: 14px; }
+  .stake-btn { font-size: 14px; padding: 8px; }
+
+  /* Gate & Intro */
+  .gate-title { font-size: 40px; }
+  .intro-title { font-size: 40px; }
+  .intro-briefing { font-size: 18px; }
+  .intro-goal { font-size: 20px !important; }
+  .intro-tip { font-size: 15px !important; }
+  .intro-btn { font-size: 18px; padding: 12px 20px; }
+
+  /* Cash flow footer */
+  .cf-footer-value { font-size: 18px; }
+  .cf-footer-total-value { font-size: 22px; }
+}
+
+/* Very small phones: under 375px */
+@media (max-width: 375px) {
+  .card-grid-6 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px;
+  }
+  .signal-row { font-size: 11px; }
+  .card-city { font-size: 14px; }
+  .top-brand { font-size: 18px; }
+  .wheel-canvas {
+    width: 240px !important;
+    height: 240px !important;
+  }
 }

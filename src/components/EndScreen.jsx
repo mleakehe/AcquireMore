@@ -3,7 +3,28 @@ import { playWin } from "../utils/sound";
 import ValuationWheel from "./ValuationWheel";
 import { submitScore } from "../utils/leaderboard";
 
-export default function EndScreen({ month, totalStores, ownedStores, netCashFlow, debt, cash, onRestart, onShowLeaderboard }) {
+// Tier → score mapping for investor accuracy
+const TIER_SCORES = { great: 5, good: 4, ok: 3, mediocre: 2, bad: 1, terrible: 0 };
+const GRADE_THRESHOLDS = [
+  { min: 4.2, grade: "A", label: "Elite Investor" },
+  { min: 3.4, grade: "B", label: "Sharp Eye" },
+  { min: 2.6, grade: "C", label: "Average Joe" },
+  { min: 1.8, grade: "D", label: "Needs Glasses" },
+  { min: 1.0, grade: "E", label: "Terrible Taste" },
+  { min: 0,   grade: "F", label: "Certified Dumpster Diver" },
+];
+
+function computeInvestorGrade(dealHistory) {
+  if (!dealHistory || dealHistory.length === 0) {
+    return { grade: "N/A", label: "Passed on Everything", avgScore: 0, totalDeals: 0 };
+  }
+  const totalScore = dealHistory.reduce((sum, d) => sum + (TIER_SCORES[d.tier] ?? 0), 0);
+  const avgScore = totalScore / dealHistory.length;
+  const match = GRADE_THRESHOLDS.find(t => avgScore >= t.min) || GRADE_THRESHOLDS[GRADE_THRESHOLDS.length - 1];
+  return { grade: match.grade, label: match.label, avgScore, totalDeals: dealHistory.length };
+}
+
+export default function EndScreen({ month, totalStores, ownedStores, netCashFlow, debt, cash, dealHistory, onRestart, onShowLeaderboard }) {
   const [phase, setPhase] = useState("summary");
   const [result, setResult] = useState(null);
   const [name, setName] = useState("");
@@ -13,6 +34,7 @@ export default function EndScreen({ month, totalStores, ownedStores, netCashFlow
 
   const builds = ownedStores.filter(s => s.source === "built").length;
   const acquisitions = ownedStores.filter(s => s.source === "acquired").length;
+  const investorGrade = computeInvestorGrade(dealHistory);
   const positiveStores = ownedStores.filter(s => s.profit > 0).length;
   const negativeStores = ownedStores.filter(s => s.profit <= 0).length;
   const bestStore = ownedStores.length > 0
@@ -41,6 +63,7 @@ export default function EndScreen({ month, totalStores, ownedStores, netCashFlow
       debt,
       builds,
       acquisitions,
+      investorGrade: investorGrade.grade,
     };
     await submitScore(entry);
     setSubmitting(false);
@@ -156,6 +179,12 @@ export default function EndScreen({ month, totalStores, ownedStores, netCashFlow
                   ${debt.toLocaleString()}
                 </span>
               </div>
+              <div className="stat-row">
+                <span>Investor Accuracy</span>
+                <span className={`investor-grade grade-${investorGrade.grade.toLowerCase()}`}>
+                  {investorGrade.grade} — {investorGrade.label}
+                </span>
+              </div>
             </div>
 
             <button className="endscreen-btn win-btn" onClick={() => setPhase("wheel")}>
@@ -168,6 +197,7 @@ export default function EndScreen({ month, totalStores, ownedStores, netCashFlow
           <ValuationWheel
             netCashFlow={netCashFlow}
             debt={debt}
+            cash={cash}
             onComplete={handleWheelComplete}
           />
         )}
@@ -179,7 +209,10 @@ export default function EndScreen({ month, totalStores, ownedStores, netCashFlow
             </h2>
             <p className="name-valuation">
               Final Valuation: ${result.finalValuation.toLocaleString()}
-              {result.finalValuation === 0 ? " (the Debt Monster ate it)" : ""}
+            </p>
+            <p className="name-grade">
+              Investor Grade: <span className={`investor-grade grade-${investorGrade.grade.toLowerCase()}`}>{investorGrade.grade}</span>
+              {" "}({investorGrade.label})
             </p>
             <form onSubmit={handleSubmit} className="name-form">
               <input
