@@ -1,5 +1,5 @@
 import {
-  DIARY_TITLES, DIARY_OPENINGS, PARTNER_REFERENCES,
+  DIARY_TITLES, DIARY_OPENINGS,
   DAN_DEAL_GOOD, DAN_DEAL_BAD,
   DAN_BUILD_GOOD, DAN_BUILD_BAD,
   DAN_PASSED, DAN_WILD_EVENT_GOOD, DAN_WILD_EVENT_BAD,
@@ -34,13 +34,9 @@ function generateLetter(report) {
   // Diary title (replaces email subject)
   const title = pick(DIARY_TITLES[bucket]).replace("{month}", String(month));
 
-  // Pick a random partner reference
-  const partnerRef = pick(PARTNER_REFERENCES);
-
-  // Opening — "Dear Diary" with partner reference baked in
+  // Opening — "Dear Diary"
   const opening = pick(DIARY_OPENINGS[bucket])
-    .replace("{month}", String(month))
-    .replace("{partnerRef}", partnerRef);
+    .replace("{month}", String(month));
 
   // Bullets — focus on what happened, not numbers
   const bullets = [];
@@ -161,7 +157,7 @@ export default function MonthlyReport({ report, onClose }) {
 
         <div className="report-divider" />
 
-        {/* Opening (Dear Diary + partner ref baked in) */}
+        {/* Opening (Dear Diary) */}
         <p className="dan-greeting">{letter.opening}</p>
 
         {/* Bullet list */}

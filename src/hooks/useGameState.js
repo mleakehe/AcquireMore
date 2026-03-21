@@ -396,7 +396,7 @@ function executeDeal(card, state) {
 function pickDesperateMeasure(ownedStores, cash, lastDanMonth, month) {
   const options = [];
 
-  // Beg Shandon (if cooldown expired)
+  // Beg a partner (if cooldown expired)
   if (lastDanMonth === null || (month - lastDanMonth) >= DAN_COOLDOWN_MONTHS) {
     options.push("dan");
   }
@@ -436,10 +436,10 @@ function executeDan() {
     segment,
     amount: segment.amount,
     message: segment.amount > 0
-      ? `Shandon is feeling ${segment.label}! +$${segment.amount.toLocaleString()}`
+      ? `Your partner is feeling ${segment.label}! +$${segment.amount.toLocaleString()}`
       : segment.amount < 0
-        ? `Shandon says "${segment.label}." You owe him $${Math.abs(segment.amount).toLocaleString()}.`
-        : `Shandon says "${segment.label}." No money for you.`,
+        ? `Your partner says "${segment.label}." You owe them $${Math.abs(segment.amount).toLocaleString()}.`
+        : `Your partner says "${segment.label}." No money for you.`,
     success: segment.amount > 0,
   };
 }
@@ -705,7 +705,7 @@ function reducer(state, action) {
           monthActions: { ...s.monthActions, desperate: { type: "dan", ...result } },
           popup: {
             type: result.success ? "homerun" : result.amount < 0 ? "lemon" : "solid",
-            message: "BEG SHANDON FOR MONEY",
+            message: "BEG A PARTNER FOR MONEY",
             subtext: result.message,
             cashFlow: result.amount,
           },
