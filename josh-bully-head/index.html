@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Josh Bully Head Invasion!</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #1a0a2e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* --- LOGIN SCREEN --- */
+#login-screen {
+  text-align: center;
+  color: white;
+  animation: fadeIn 0.5s ease;
+}
+#login-screen h1 {
+  font-size: 2.5em;
+  color: #ff69b4;
+  text-shadow: 0 0 20px #ff69b480;
+  margin-bottom: 0.1em;
+}
+#login-screen h2 {
+  font-size: 1.8em;
+  color: #ff3c50;
+  text-shadow: 0 0 15px #ff3c5080;
+  margin-bottom: 1em;
+}
+#login-screen p {
+  color: #ccc;
+  margin-bottom: 1.5em;
+  font-size: 1.1em;
+}
+#login-screen input {
+  padding: 12px 20px;
+  font-size: 1.2em;
+  border: 2px solid #b464ff;
+  border-radius: 12px;
+  background: #2a1a4e;
+  color: white;
+  outline: none;
+  width: 260px;
+  text-align: center;
+}
+#login-screen input:focus { border-color: #ff69b4; box-shadow: 0 0 15px #ff69b440; }
+#login-screen input::placeholder { color: #8866aa; }
+#login-screen button {
+  display: block;
+  margin: 1em auto;
+  padding: 12px 40px;
+  font-size: 1.2em;
+  font-weight: bold;
+  background: linear-gradient(135deg, #ff69b4, #b464ff);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+#login-screen button:hover { transform: scale(1.05); box-shadow: 0 0 20px #ff69b460; }
+#login-error {
+  color: #ff6b6b;
+  margin-top: 0.5em;
+  min-height: 1.4em;
+  font-size: 0.95em;
+}
+.login-chars {
+  margin: 1.5em 0;
+  display: flex;
+  justify-content: center;
+  gap: 2em;
+}
+.login-chars canvas { border-radius: 50%; }
+
+/* --- GAME CANVAS --- */
+#game-container { display: none; position: relative; }
+#gameCanvas {
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 0 40px #b464ff40;
+  touch-action: none;
+}
+
+/* --- MOBILE CONTROLS --- */
+#mobile-controls {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 160px;
+  pointer-events: none;
+  z-index: 10;
+}
+.dpad {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  width: 130px;
+  height: 130px;
+  pointer-events: auto;
+}
+.dpad-btn {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  background: rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 10px;
+  color: white;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: auto;
+}
+.dpad-btn:active { background: rgba(255,105,180,0.4); }
+.dpad-up { left: 43px; top: 0; }
+.dpad-down { left: 43px; bottom: 0; }
+.dpad-left { left: 0; top: 43px; }
+.dpad-right { right: 0; top: 43px; }
+.fire-btn {
+  position: absolute;
+  right: 25px;
+  bottom: 35px;
+  width: 80px;
+  height: 80px;
+  background: rgba(255,105,180,0.3);
+  border: 3px solid rgba(255,105,180,0.5);
+  border-radius: 50%;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: auto;
+}
+.fire-btn:active { background: rgba(255,105,180,0.6); }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 850px) {
+  #mobile-controls { display: block; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <h1>Josh Bully Head</h1>
+  <h2>Invasion!</h2>
+  <p>Enter the family password to play!</p>
+  <input type="password" id="password-input" placeholder="Secret password..." autofocus>
+  <button id="login-btn">LET'S GO!</button>
+  <div id="login-error"></div>
+  <div class="login-chars">
+    <canvas id="preview-player" width="80" height="80"></canvas>
+    <canvas id="preview-josh" width="80" height="80"></canvas>
+    <canvas id="preview-marcy" width="80" height="80"></canvas>
+  </div>
+  <p style="font-size:0.85em;color:#8866aa;">With love from Nanny & Guardian Angel Marcy</p>
+</div>
+
+<!-- GAME -->
+<div id="game-container">
+  <canvas id="gameCanvas"></canvas>
+  <div id="mobile-controls">
+    <div class="dpad">
+      <div class="dpad-btn dpad-up" data-dir="up">&#9650;</div>
+      <div class="dpad-btn dpad-down" data-dir="down">&#9660;</div>
+      <div class="dpad-btn dpad-left" data-dir="left">&#9664;</div>
+      <div class="dpad-btn dpad-right" data-dir="right">&#9654;</div>
+    </div>
+    <div class="fire-btn" id="fire-btn">HEART!</div>
+  </div>
+</div>
+
+<script>
+// =========================================================================
+// PASSWORD GATE
+// =========================================================================
+const PASSWORD = "BULLYHEAD";
+const loginScreen = document.getElementById("login-screen");
+const gameContainer = document.getElementById("game-container");
+const passwordInput = document.getElementById("password-input");
+const loginBtn = document.getElementById("login-btn");
+const loginError = document.getElementById("login-error");
+
+if (localStorage.getItem("jbh-auth") === "yes") {
+  startGame();
+} else {
+  drawLoginPreviews();
+}
+
+loginBtn.addEventListener("click", tryLogin);
+passwordInput.addEventListener("keydown", e => { if (e.key === "Enter") tryLogin(); });
+
+function tryLogin() {
+  if (passwordInput.value.toUpperCase().trim() === PASSWORD) {
+    localStorage.setItem("jbh-auth", "yes");
+    startGame();
+  } else {
+    loginError.textContent = "Nope! Try again, silly!";
+    passwordInput.value = "";
+    passwordInput.focus();
+  }
+}
+
+function drawLoginPreviews() {
+  const p = document.getElementById("preview-player").getContext("2d");
+  drawPlayerSprite(p, 40, 45, 0.9);
+  const j = document.getElementById("preview-josh").getContext("2d");
+  drawJoshSprite(j, 40, 42, 0.9, false);
+  const m = document.getElementById("preview-marcy").getContext("2d");
+  drawMarcySprite(m, 40, 45, 0.9);
+}
+
+function startGame() {
+  loginScreen.style.display = "none";
+  gameContainer.style.display = "block";
+  initGame();
+}
+
+// =========================================================================
+// DRAWING HELPERS
+// =========================================================================
+function drawHeart(ctx, x, y, size, color = "#ff69b4") {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x, y + size * 0.3);
+  ctx.bezierCurveTo(x, y - size * 0.4, x - size * 0.8, y - size * 0.4, x - size * 0.8, y + size * 0.1);
+  ctx.bezierCurveTo(x - size * 0.8, y + size * 0.55, x, y + size * 0.9, x, y + size);
+  ctx.bezierCurveTo(x, y + size * 0.9, x + size * 0.8, y + size * 0.55, x + size * 0.8, y + size * 0.1);
+  ctx.bezierCurveTo(x + size * 0.8, y - size * 0.4, x, y - size * 0.4, x, y + size * 0.3);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawPlayerSprite(ctx, x, y, s = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  // Body
+  ctx.fillStyle = "#ffe600";
+  ctx.beginPath(); ctx.ellipse(0, 0, 20, 30, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "#ffa500"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(0, 0, 20, 30, 0, 0, Math.PI * 2); ctx.stroke();
+  // Wings
+  ctx.fillStyle = "#ff3c50";
+  ctx.beginPath(); ctx.moveTo(-20, 0); ctx.lineTo(-45, 15); ctx.lineTo(-15, 15); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(20, 0); ctx.lineTo(45, 15); ctx.lineTo(15, 15); ctx.fill();
+  // Tail
+  ctx.fillStyle = "#b464ff";
+  ctx.beginPath(); ctx.moveTo(-8, 25); ctx.lineTo(8, 25); ctx.lineTo(0, 40); ctx.fill();
+  // Nose
+  ctx.fillStyle = "#ffa500";
+  ctx.beginPath(); ctx.moveTo(-12, -28); ctx.lineTo(12, -28); ctx.lineTo(0, -45); ctx.fill();
+  // Eyes
+  ctx.fillStyle = "#000";
+  ctx.beginPath(); ctx.arc(-7, -12, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(7, -12, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(-5, -13, 2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(9, -13, 2, 0, Math.PI * 2); ctx.fill();
+  // Smile
+  ctx.strokeStyle = "#ff3c50"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(0, -5, 8, 0.1, Math.PI - 0.1); ctx.stroke();
+  // Cheeks
+  ctx.fillStyle = "#ffb6c1";
+  ctx.beginPath(); ctx.arc(-14, -4, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(14, -4, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function drawJoshSprite(ctx, x, y, s = 1, hitFlash = false) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  const headColor = hitFlash ? "#ff69b4" : "#dcb98a";
+  // Head
+  ctx.fillStyle = headColor;
+  ctx.beginPath(); ctx.arc(0, 0, 35, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "#6432a0"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(0, 0, 35, 0, Math.PI * 2); ctx.stroke();
+  // Curly hair (Josh's signature curly dark hair)
+  ctx.fillStyle = "#2a1a0a";
+  for (let a = -160; a < -20; a += 18) {
+    const rad = a * Math.PI / 180;
+    const cx = Math.cos(rad) * 32;
+    const cy = Math.sin(rad) * 32;
+    ctx.beginPath(); ctx.arc(cx, cy, 10, 0, Math.PI * 2); ctx.fill();
+  }
+  // Extra curls on sides
+  ctx.beginPath(); ctx.arc(-30, -10, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(30, -10, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(-28, 5, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(28, 5, 6, 0, Math.PI * 2); ctx.fill();
+  // Sunglasses (Josh's look)
+  ctx.fillStyle = "#1a1a1a";
+  ctx.beginPath();
+  ctx.roundRect(-26, -14, 22, 16, 4);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.roundRect(4, -14, 22, 16, 4);
+  ctx.fill();
+  // Bridge
+  ctx.strokeStyle = "#333"; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(-4, -6); ctx.lineTo(4, -6); ctx.stroke();
+  // Ear pieces
+  ctx.beginPath(); ctx.moveTo(-26, -6); ctx.lineTo(-34, -10); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(26, -6); ctx.lineTo(34, -10); ctx.stroke();
+  // Lens shine
+  ctx.fillStyle = "rgba(255,255,255,0.15)";
+  ctx.beginPath(); ctx.ellipse(-17, -10, 5, 3, -0.3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(13, -10, 5, 3, -0.3, 0, Math.PI * 2); ctx.fill();
+  // Big goofy grin
+  ctx.fillStyle = "#ff3c50";
+  ctx.beginPath(); ctx.ellipse(0, 14, 18, 11, 0, 0, Math.PI * 2); ctx.fill();
+  // Teeth
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.ellipse(0, 11, 14, 6, 0, 0, Math.PI, true); ctx.fill();
+  // Eyebrows (mischievous)
+  ctx.strokeStyle = "#2a1a0a"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(-24, -22); ctx.lineTo(-8, -18); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(8, -18); ctx.lineTo(24, -22); ctx.stroke();
+  ctx.restore();
+}
+
+function drawMarcySprite(ctx, x, y, s = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  // Glow
+  const grd = ctx.createRadialGradient(0, 0, 5, 0, 0, 30);
+  grd.addColorStop(0, "rgba(255,200,255,0.3)");
+  grd.addColorStop(1, "rgba(255,200,255,0)");
+  ctx.fillStyle = grd;
+  ctx.beginPath(); ctx.arc(0, 0, 30, 0, Math.PI * 2); ctx.fill();
+  // Wings
+  ctx.fillStyle = "#ffc8ff";
+  ctx.beginPath(); ctx.ellipse(-18, 0, 10, 18, -0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(18, 0, 10, 18, 0.2, 0, Math.PI * 2); ctx.fill();
+  // Body
+  ctx.fillStyle = "#ffb6c1";
+  ctx.beginPath(); ctx.ellipse(0, 5, 10, 14, 0, 0, Math.PI * 2); ctx.fill();
+  // Head
+  ctx.fillStyle = "#ffdcb4";
+  ctx.beginPath(); ctx.arc(0, -12, 10, 0, Math.PI * 2); ctx.fill();
+  // Eyes
+  ctx.fillStyle = "#000";
+  ctx.beginPath(); ctx.arc(-4, -13, 2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(4, -13, 2, 0, Math.PI * 2); ctx.fill();
+  // Smile
+  ctx.strokeStyle = "#ff69b4"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(0, -10, 4, 0.1, Math.PI - 0.1); ctx.stroke();
+  // Halo
+  ctx.strokeStyle = "#ffd700"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(0, -24, 10, 4, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+}
+
+function drawNannySprite(ctx, x, y, s = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  // Face
+  ctx.fillStyle = "#ffdcb4";
+  ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "#8b5a2b"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.stroke();
+  // Hair
+  ctx.fillStyle = "#8b5a2b";
+  ctx.beginPath(); ctx.arc(0, -8, 22, Math.PI, 2 * Math.PI); ctx.fill();
+  // Eyes
+  ctx.fillStyle = "#000";
+  ctx.beginPath(); ctx.arc(-7, -4, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(7, -4, 3, 0, Math.PI * 2); ctx.fill();
+  // Smile
+  ctx.strokeStyle = "#ff3c50"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(0, 4, 10, 0.1, Math.PI - 0.1); ctx.stroke();
+  // Cheeks
+  ctx.fillStyle = "#ffb6c1";
+  ctx.beginPath(); ctx.arc(-15, 4, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(15, 4, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function drawBullyCloud(ctx, x, y, w) {
+  ctx.save();
+  ctx.fillStyle = "rgba(80,80,100,0.85)";
+  ctx.beginPath(); ctx.ellipse(x, y, w / 2, w / 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "rgba(60,60,80,0.9)";
+  ctx.beginPath(); ctx.ellipse(x, y - w * 0.18, w * 0.3, w * 0.2, 0, 0, Math.PI * 2); ctx.fill();
+  // Grumpy eyes
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(x - 6, y - 3, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + 6, y - 3, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#000";
+  ctx.beginPath(); ctx.arc(x - 6, y - 2, 2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + 6, y - 2, 2, 0, Math.PI * 2); ctx.fill();
+  // Frown
+  ctx.strokeStyle = "#000"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x, y + 8, 6, Math.PI + 0.3, -0.3); ctx.stroke();
+  ctx.restore();
+}
+
+// =========================================================================
+// SOUND EFFECTS (Web Audio API chiptune)
+// =========================================================================
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playSound(type) {
+  try {
+    ensureAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    gain.gain.setValueAtTime(0.15, now);
+
+    if (type === "shoot") {
+      osc.type = "sine"; osc.frequency.setValueAtTime(880, now);
+      osc.frequency.exponentialRampToValueAtTime(1200, now + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc.start(now); osc.stop(now + 0.12);
+    } else if (type === "hit") {
+      osc.type = "square"; osc.frequency.setValueAtTime(300, now);
+      osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      osc.start(now); osc.stop(now + 0.15);
+    } else if (type === "defeat") {
+      osc.type = "sine"; osc.frequency.setValueAtTime(523, now);
+      osc.frequency.setValueAtTime(659, now + 0.1);
+      osc.frequency.setValueAtTime(784, now + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      osc.start(now); osc.stop(now + 0.4);
+    } else if (type === "hurt") {
+      osc.type = "sawtooth"; osc.frequency.setValueAtTime(200, now);
+      osc.frequency.exponentialRampToValueAtTime(80, now + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.start(now); osc.stop(now + 0.25);
+    } else if (type === "powerup") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.setValueAtTime(600, now + 0.08);
+      osc.frequency.setValueAtTime(800, now + 0.16);
+      osc.frequency.setValueAtTime(1000, now + 0.24);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.start(now); osc.stop(now + 0.35);
+    } else if (type === "win") {
+      osc.type = "sine";
+      [523,659,784,1047].forEach((f, i) => osc.frequency.setValueAtTime(f, now + i * 0.15));
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+      osc.start(now); osc.stop(now + 0.7);
+    } else if (type === "gameover") {
+      osc.type = "sawtooth";
+      [400,300,200,100].forEach((f, i) => osc.frequency.setValueAtTime(f, now + i * 0.2));
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+      osc.start(now); osc.stop(now + 0.9);
+    }
+  } catch (e) {}
+}
+
+// =========================================================================
+// MAIN GAME
+// =========================================================================
+function initGame() {
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  // Responsive sizing
+  function resize() {
+    const maxW = Math.min(800, window.innerWidth);
+    const maxH = Math.min(600, window.innerHeight - (isMobile() ? 160 : 0));
+    const aspect = 800 / 600;
+    let w = maxW, h = maxW / aspect;
+    if (h > maxH) { h = maxH; w = h * aspect; }
+    canvas.width = 800; canvas.height = 600;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+  }
+  function isMobile() { return window.innerWidth <= 850; }
+  resize();
+  window.addEventListener("resize", resize);
+
+  // Constants
+  const W = 800, H = 600;
+  const PLAYER_SPEED = 5;
+  const HEART_SPEED = 8;
+  const JOSH_HITS = 3;
+  const MAX_LIVES = 3;
+  const SHOOT_CD = 250;
+  const JOSH_SPAWN = 2500;
+  const CLOUD_SPAWN = 3000;
+  const MARCY_SPAWN = 12000;
+  const POWERUP_DUR = 5000;
+  const WIN_SCORE = 100;
+
+  // Input state
+  const keys = {};
+  let mobileDir = {};
+  let mobileFiring = false;
+
+  document.addEventListener("keydown", e => { keys[e.key] = true; ensureAudio(); });
+  document.addEventListener("keyup", e => { keys[e.key] = false; });
+
+  // Mobile controls
+  document.querySelectorAll(".dpad-btn").forEach(btn => {
+    const dir = btn.dataset.dir;
+    btn.addEventListener("touchstart", e => { e.preventDefault(); mobileDir[dir] = true; ensureAudio(); });
+    btn.addEventListener("touchend", e => { e.preventDefault(); mobileDir[dir] = false; });
+    btn.addEventListener("touchcancel", e => { mobileDir[dir] = false; });
+  });
+  const fireBtn = document.getElementById("fire-btn");
+  fireBtn.addEventListener("touchstart", e => { e.preventDefault(); mobileFiring = true; ensureAudio(); });
+  fireBtn.addEventListener("touchend", e => { e.preventDefault(); mobileFiring = false; });
+  fireBtn.addEventListener("touchcancel", () => { mobileFiring = false; });
+
+  // Game state
+  let state = "menu";
+  let player, hearts, joshes, clouds, marcys, texts, confettis;
+  let lastJosh, lastCloud, lastMarcy, lastShot;
+  let bgClouds = [];
+  for (let i = 0; i < 8; i++) bgClouds.push({ x: Math.random() * W, y: Math.random() * H, w: 60 + Math.random() * 60 });
+
+  let gameOverPlayed = false;
+  let winPlayed = false;
+
+  function resetGame() {
+    player = { x: W / 2, y: H - 80, speed: PLAYER_SPEED, lives: MAX_LIVES, score: 0, radius: 20,
+               invUntil: 0, tripleUntil: 0, speedUntil: 0 };
+    hearts = []; joshes = []; clouds = []; marcys = []; texts = []; confettis = [];
+    lastJosh = lastCloud = lastMarcy = lastShot = performance.now();
+    gameOverPlayed = false;
+    winPlayed = false;
+  }
+
+  // --- Entity classes as plain objects ---
+  function createHeart(x, y, dx = 0) {
+    return { x, y, dx, radius: 8 };
+  }
+
+  function createJosh(difficulty) {
+    const hp = JOSH_HITS + Math.floor(difficulty / 30);
+    return {
+      x: 50 + Math.random() * (W - 100), y: -40 - Math.random() * 40,
+      hp, maxHp: hp, speed: 0.8 + Math.random() * 0.7 + difficulty * 0.01,
+      dx: -1 + Math.random() * 2, radius: 35,
+      hitTimer: 0, giggle: "", giggleTimer: 0, defeated: false, defeatTimer: 0
+    };
+  }
+
+  function createCloud() {
+    const w = 35 + Math.random() * 20;
+    return { x: 30 + Math.random() * (W - 60), y: -30, speed: 2 + Math.random() * 2, w, radius: w / 2 };
+  }
+
+  function createMarcy() {
+    return {
+      x: -30, y: 60 + Math.random() * (H / 2 - 60), speed: 2.5,
+      kind: ["shield", "triple", "speed"][Math.floor(Math.random() * 3)],
+      dropped: false, dropX: 0, dropY: 0, dropSpeed: 2, radius: 14, collected: false
+    };
+  }
+
+  function createText(x, y, text, color = "#ffe600", size = 20) {
+    return { x, y, text, color, size, timer: 50 };
+  }
+
+  function createConfetti(x, y) {
+    const pieces = [];
+    const colors = ["#ff69b4", "#ffe600", "#b464ff", "#64c864", "#ffa500", "#ff3c50", "#ffd700"];
+    for (let i = 0; i < 20; i++) {
+      pieces.push({
+        x, y, vx: -4 + Math.random() * 8, vy: -6 + Math.random() * 7,
+        color: colors[Math.floor(Math.random() * colors.length)], timer: 40
+      });
+    }
+    return pieces;
+  }
+
+  // --- Helpers ---
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+  function isUp() { return keys["ArrowUp"] || keys["w"] || keys["W"] || mobileDir.up; }
+  function isDown() { return keys["ArrowDown"] || keys["s"] || keys["S"] || mobileDir.down; }
+  function isLeft() { return keys["ArrowLeft"] || keys["a"] || keys["A"] || mobileDir.left; }
+  function isRight() { return keys["ArrowRight"] || keys["d"] || keys["D"] || mobileDir.right; }
+  function isFire() { return keys[" "] || mobileFiring; }
+
+  // --- Nanny messages ---
+  const nannyMsgs = ["Go go go!", "You're amazing!", "Nanny loves you!", "So proud!", "Yay sweetie!"];
+  const nannyCheer = ["Nanny is so proud!", "Amazing sweetie!", "You did it!", "Yay Nanny!"];
+  const giggles = ["Hee hee hee!", "Boing!", "Tee hee!", "Ha ha ha!", "That tickles!"];
+  const shootTexts = ["Heart blast!", "Pew pew!", "Love shot!"];
+
+  // --- Draw background ---
+  function drawBg() {
+    ctx.fillStyle = "#87ceeb";
+    ctx.fillRect(0, 0, W, H);
+    // Gradient sky
+    const grd = ctx.createLinearGradient(0, 0, 0, H);
+    grd.addColorStop(0, "#87ceeb");
+    grd.addColorStop(1, "#b0e0f0");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
+    // Clouds
+    for (const c of bgClouds) {
+      ctx.fillStyle = "rgba(240,248,255,0.7)";
+      ctx.beginPath(); ctx.ellipse(c.x, c.y, c.w / 2, c.w / 4, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(c.x + c.w * 0.3, c.y - c.w * 0.12, c.w * 0.25, c.w * 0.18, 0, 0, Math.PI * 2); ctx.fill();
+      c.y += 0.3;
+      if (c.y > H + 60) { c.y = -60; c.x = Math.random() * W; }
+    }
+  }
+
+  // --- HUD ---
+  function drawHUD() {
+    const now = performance.now();
+    ctx.fillStyle = "#fff"; ctx.font = "bold 22px 'Segoe UI', Arial";
+    ctx.fillText("Score: " + player.score, 15, 28);
+
+    ctx.fillText("Lives: ", 15, 55);
+    for (let i = 0; i < player.lives; i++) drawHeart(ctx, 100 + i * 25, 42, 10, "#ff3c50");
+
+    // Powerup indicators
+    let py = 75;
+    ctx.font = "bold 16px 'Segoe UI', Arial";
+    if (now < player.invUntil) { ctx.fillStyle = "#ffd700"; ctx.fillText("SHIELD", 15, py); py += 20; }
+    if (now < player.tripleUntil) { ctx.fillStyle = "#ff69b4"; ctx.fillText("TRIPLE", 15, py); py += 20; }
+    if (now < player.speedUntil) { ctx.fillStyle = "#64c864"; ctx.fillText("SPEED", 15, py); }
+
+    ctx.fillStyle = "#ffb6c1"; ctx.font = "bold 16px 'Segoe UI', Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Goal: " + WIN_SCORE + " pts", W / 2, 22);
+    ctx.textAlign = "left";
+
+    // Nanny corner
+    drawNannySprite(ctx, W - 70, H - 55, 0.85);
+    ctx.fillStyle = "#ff69b4"; ctx.font = "bold 14px 'Segoe UI', Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(nannyMsgs[Math.floor(player.score / 10) % nannyMsgs.length], W - 70, H - 22);
+    ctx.textAlign = "left";
+  }
+
+  // =========================================================================
+  // GAME LOOP
+  // =========================================================================
+  let lastTime = performance.now();
+
+  function loop(timestamp) {
+    const dt = timestamp - lastTime;
+    lastTime = timestamp;
+    const now = performance.now();
+
+    drawBg();
+
+    // ===================== MENU =====================
+    if (state === "menu") {
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#b464ff"; ctx.font = "bold 52px 'Segoe UI', Arial";
+      ctx.fillText("Josh Bully Head", W / 2, 120);
+      ctx.fillStyle = "#ff3c50"; ctx.font = "bold 52px 'Segoe UI', Arial";
+      ctx.fillText("Invasion!", W / 2, 180);
+
+      drawJoshSprite(ctx, W / 2, 290, 1.5, false);
+      drawPlayerSprite(ctx, W / 2 - 120, 300, 1);
+      drawMarcySprite(ctx, W / 2 + 120, 280, 1);
+
+      ctx.fillStyle = "#fff"; ctx.font = "bold 24px 'Segoe UI', Arial";
+      ctx.fillText(isMobile() ? "Tap HEART to start!" : "Press SPACE to start!", W / 2, 410);
+
+      ctx.font = "bold 16px 'Segoe UI', Arial";
+      ctx.fillText(isMobile() ? "D-pad to move  |  HEART button to shoot!" : "Arrow keys / WASD to move  |  SPACE to shoot hearts!", W / 2, 450);
+
+      ctx.fillStyle = "#ff69b4"; ctx.font = "bold 16px 'Segoe UI', Arial";
+      ctx.fillText("With love from Nanny & Guardian Angel Marcy", W / 2, 520);
+      ctx.textAlign = "left";
+
+      if (isFire()) {
+        state = "playing";
+        resetGame();
+      }
+    }
+
+    // ===================== PLAYING =====================
+    else if (state === "playing") {
+      const spd = player.speed + (now < player.speedUntil ? 3 : 0);
+
+      // Movement
+      if (isLeft()) player.x -= spd;
+      if (isRight()) player.x += spd;
+      if (isUp()) player.y -= spd;
+      if (isDown()) player.y += spd;
+      player.x = Math.max(25, Math.min(W - 25, player.x));
+      player.y = Math.max(30, Math.min(H - 30, player.y));
+
+      const difficulty = player.score;
+
+      // Shooting
+      if (isFire() && now - lastShot > SHOOT_CD) {
+        lastShot = now;
+        hearts.push(createHeart(player.x, player.y - 30));
+        if (now < player.tripleUntil) {
+          hearts.push(createHeart(player.x - 15, player.y - 20, -1.5));
+          hearts.push(createHeart(player.x + 15, player.y - 20, 1.5));
+        }
+        texts.push(createText(player.x, player.y - 50, shootTexts[Math.floor(Math.random() * shootTexts.length)], "#ffb6c1", 14));
+        playSound("shoot");
+      }
+
+      // Spawning
+      const spawnInt = Math.max(800, JOSH_SPAWN - difficulty * 15);
+      if (now - lastJosh > spawnInt) { joshes.push(createJosh(difficulty)); lastJosh = now; }
+      if (now - lastCloud > CLOUD_SPAWN) { clouds.push(createCloud()); lastCloud = now; }
+      if (now - lastMarcy > MARCY_SPAWN) {
+        marcys.push(createMarcy()); lastMarcy = now;
+        texts.push(createText(100, 80, "Marcy is here!", "#ffc8ff", 20));
+      }
+
+      // Update hearts
+      for (const h of hearts) { h.y -= HEART_SPEED; h.x += h.dx; }
+      hearts = hearts.filter(h => h.y > -20 && h.x > -20 && h.x < W + 20);
+
+      // Update joshes
+      for (const j of joshes) {
+        if (j.defeated) { j.defeatTimer++; continue; }
+        j.y += j.speed;
+        j.x += j.dx;
+        if (j.x < 40 || j.x > W - 40) j.dx *= -1;
+        if (j.hitTimer > 0) j.hitTimer--;
+        if (j.giggleTimer > 0) j.giggleTimer--;
+      }
+      joshes = joshes.filter(j => !(j.defeated && j.defeatTimer > 40) && j.y <= H + 50);
+
+      // Update clouds
+      for (const c of clouds) c.y += c.speed;
+      clouds = clouds.filter(c => c.y <= H + 30);
+
+      // Update marcys
+      for (const m of marcys) {
+        if (!m.dropped) {
+          m.x += m.speed;
+          if (m.x > W / 2 && !m.dropped) { m.dropped = true; m.dropX = m.x; m.dropY = m.y + 30; }
+        }
+        if (m.dropped && !m.collected) {
+          m.dropY += m.dropSpeed;
+        }
+      }
+      marcys = marcys.filter(m => {
+        if (m.collected) return m.x < W + 40;
+        if (m.dropped && m.dropY > H + 30) return false;
+        return m.x < W + 40 || !m.dropped;
+      });
+
+      // Update texts
+      for (const t of texts) { t.y -= 1; t.timer--; }
+      texts = texts.filter(t => t.timer > 0);
+
+      // Update confetti
+      for (const group of confettis) {
+        for (const c of group) { c.x += c.vx; c.y += c.vy; c.vy += 0.1; c.timer--; }
+      }
+      confettis = confettis.filter(g => g[0].timer > 0);
+
+      // Collision: hearts vs joshes
+      for (let hi = hearts.length - 1; hi >= 0; hi--) {
+        const h = hearts[hi];
+        for (const j of joshes) {
+          if (j.defeated) continue;
+          if (dist(h, j) < h.radius + j.radius) {
+            hearts.splice(hi, 1);
+            j.hp--;
+            j.hitTimer = 10;
+            j.giggle = giggles[Math.floor(Math.random() * giggles.length)];
+            j.giggleTimer = 40;
+            playSound("hit");
+            if (j.hp <= 0) {
+              j.defeated = true;
+              confettis.push(createConfetti(j.x, j.y));
+              player.score += 10;
+              texts.push(createText(j.x, j.y - 40, "+10 Yay!!", "#ffe600", 22));
+              texts.push(createText(W / 2, H / 2, nannyCheer[Math.floor(Math.random() * nannyCheer.length)], "#ff69b4", 22));
+              playSound("defeat");
+            }
+            break;
+          }
+        }
+      }
+
+      // Collision: player vs clouds
+      for (let ci = clouds.length - 1; ci >= 0; ci--) {
+        const c = clouds[ci];
+        if (dist(player, c) < player.radius + c.radius) {
+          clouds.splice(ci, 1);
+          if (now < player.invUntil) {
+            texts.push(createText(player.x, player.y - 40, "Shield!", "#ffd700", 18));
+          } else {
+            player.lives--;
+            player.invUntil = now + 1500;
+            texts.push(createText(player.x, player.y - 40, "Ouch!", "#ff3c50", 20));
+            playSound("hurt");
+            if (player.lives <= 0) state = "gameover";
+          }
+        }
+      }
+
+      // Collision: player vs josh body
+      for (const j of joshes) {
+        if (j.defeated) continue;
+        if (dist(player, j) < player.radius + j.radius - 5) {
+          if (now >= player.invUntil) {
+            player.lives--;
+            player.invUntil = now + 1500;
+            texts.push(createText(player.x, player.y - 40, "Bonk!", "#ffa500", 20));
+            playSound("hurt");
+            if (player.lives <= 0) state = "gameover";
+          }
+        }
+      }
+
+      // Collision: player vs powerup
+      for (const m of marcys) {
+        if (m.dropped && !m.collected) {
+          if (dist(player, { x: m.dropX, y: m.dropY }) < player.radius + m.radius) {
+            m.collected = true;
+            playSound("powerup");
+            if (m.kind === "shield") { player.invUntil = now + POWERUP_DUR; texts.push(createText(player.x, player.y - 50, "Shield UP!", "#ffd700")); }
+            else if (m.kind === "triple") { player.tripleUntil = now + POWERUP_DUR; texts.push(createText(player.x, player.y - 50, "Triple Hearts!", "#ff69b4")); }
+            else { player.speedUntil = now + POWERUP_DUR; texts.push(createText(player.x, player.y - 50, "Speed Boost!", "#64c864")); }
+          }
+        }
+      }
+
+      // Win check
+      if (player.score >= WIN_SCORE) state = "win";
+
+      // ---- DRAW ----
+      // Clouds
+      for (const c of clouds) drawBullyCloud(ctx, c.x, c.y, c.w);
+
+      // Marcy + powerups
+      for (const m of marcys) {
+        if (!m.collected && m.x < W + 40) drawMarcySprite(ctx, m.x, m.y, 0.8);
+        if (m.dropped && !m.collected) {
+          const colors = { shield: "#ffd700", triple: "#ff69b4", speed: "#64c864" };
+          const labels = { shield: "S", triple: "3x", speed: ">>" };
+          ctx.fillStyle = colors[m.kind];
+          ctx.beginPath(); ctx.arc(m.dropX, m.dropY, 14, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(m.dropX, m.dropY, 14, 0, Math.PI * 2); ctx.stroke();
+          ctx.fillStyle = "#fff"; ctx.font = "bold 12px Arial"; ctx.textAlign = "center";
+          ctx.fillText(labels[m.kind], m.dropX, m.dropY + 4); ctx.textAlign = "left";
+        }
+      }
+
+      // Joshes
+      for (const j of joshes) {
+        if (j.defeated) continue;
+        drawJoshSprite(ctx, j.x, j.y, 1, j.hitTimer > 0);
+        // HP bar
+        const bw = 40;
+        ctx.fillStyle = "#ff3c50";
+        ctx.fillRect(j.x - bw / 2, j.y - 45, bw, 6);
+        ctx.fillStyle = "#64c864";
+        ctx.fillRect(j.x - bw / 2, j.y - 45, bw * j.hp / j.maxHp, 6);
+        // Giggle text
+        if (j.giggleTimer > 0) {
+          ctx.fillStyle = "#b464ff"; ctx.font = "bold 16px Arial"; ctx.textAlign = "center";
+          ctx.fillText(j.giggle, j.x, j.y - 52); ctx.textAlign = "left";
+        }
+      }
+
+      // Confetti
+      for (const group of confettis) {
+        for (const c of group) {
+          ctx.fillStyle = c.color;
+          ctx.beginPath(); ctx.arc(c.x, c.y, 4, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+
+      // Hearts
+      for (const h of hearts) drawHeart(ctx, h.x, h.y, 8, "#ff69b4");
+
+      // Player
+      if (now < player.invUntil && Math.floor(now / 100) % 2 === 0) {
+        ctx.fillStyle = "rgba(255,255,100,0.25)";
+        ctx.beginPath(); ctx.arc(player.x, player.y, 40, 0, Math.PI * 2); ctx.fill();
+      }
+      drawPlayerSprite(ctx, player.x, player.y, 1);
+
+      // Floating texts
+      for (const t of texts) {
+        const alpha = Math.min(1, t.timer / 10);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = t.color; ctx.font = `bold ${t.size}px 'Segoe UI', Arial`; ctx.textAlign = "center";
+        ctx.fillText(t.text, t.x, t.y); ctx.textAlign = "left";
+        ctx.globalAlpha = 1;
+      }
+
+      drawHUD();
+    }
+
+    // ===================== GAME OVER =====================
+    else if (state === "gameover") {
+      if (!gameOverPlayed) { playSound("gameover"); gameOverPlayed = true; }
+
+      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.fillRect(0, 0, W, H);
+
+      drawJoshSprite(ctx, W / 2, 200, 2, false);
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#b464ff"; ctx.font = "bold 40px 'Segoe UI', Arial";
+      ctx.fillText("Josh Bully Head wins...", W / 2, 320);
+      ctx.fillStyle = "#ffb6c1"; ctx.font = "bold 22px 'Segoe UI', Arial";
+      ctx.fillText("but he still loves you!", W / 2, 360);
+      ctx.fillStyle = "#fff"; ctx.font = "bold 22px 'Segoe UI', Arial";
+      ctx.fillText(isMobile() ? "Tap HEART to try again!" : "Press SPACE to try again!", W / 2, 420);
+      ctx.fillStyle = "#ff69b4"; ctx.font = "bold 22px 'Segoe UI', Arial";
+      ctx.fillText("Nanny believes in you!", W / 2, 480);
+      ctx.textAlign = "left";
+
+      if (isFire()) { state = "menu"; keys[" "] = false; mobileFiring = false; }
+    }
+
+    // ===================== WIN =====================
+    else if (state === "win") {
+      if (!winPlayed) { playSound("win"); winPlayed = true; }
+
+      ctx.fillStyle = "rgba(255,200,255,0.35)";
+      ctx.fillRect(0, 0, W, H);
+
+      // Confetti rain
+      for (let i = 0; i < 4; i++) {
+        ctx.fillStyle = ["#ff69b4", "#ffe600", "#b464ff", "#64c864", "#ffa500", "#ffd700"][Math.floor(Math.random() * 6)];
+        ctx.beginPath(); ctx.arc(Math.random() * W, Math.random() * H, 3 + Math.random() * 4, 0, Math.PI * 2); ctx.fill();
+      }
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#ffd700"; ctx.font = "bold 50px 'Segoe UI', Arial";
+      ctx.fillText("YOU SAVED THE DAY!", W / 2, 80);
+
+      drawPlayerSprite(ctx, W / 2 - 140, 220, 1);
+      drawMarcySprite(ctx, W / 2, 200, 1.2);
+      drawJoshSprite(ctx, W / 2 + 140, 220, 1.2, true);
+
+      ctx.fillStyle = "#ff69b4"; ctx.font = "bold 38px 'Segoe UI', Arial";
+      ctx.fillText("Nanny loves you SO much!", W / 2, 330);
+
+      ctx.fillStyle = "#fff"; ctx.font = "bold 24px 'Segoe UI', Arial";
+      ctx.fillText("Final Score: " + player.score, W / 2, 385);
+
+      ctx.fillStyle = "#fff"; ctx.font = "bold 15px 'Segoe UI', Arial";
+      ctx.fillText("Player  |  Guardian Angel Marcy  |  Josh Bully Head  |  Beloved Nanny", W / 2, 435);
+
+      ctx.fillStyle = "#fff"; ctx.font = "bold 22px 'Segoe UI', Arial";
+      ctx.fillText(isMobile() ? "Tap HEART to play again!" : "Press SPACE to play again!", W / 2, 490);
+      ctx.textAlign = "left";
+
+      if (isFire()) { state = "menu"; keys[" "] = false; mobileFiring = false; }
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
